@@ -15,15 +15,9 @@ class DefaultFirebaseOptions {
       case TargetPlatform.iOS:
         return ios;
       case TargetPlatform.macOS:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for macos - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return macos;
       case TargetPlatform.windows:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for windows - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return windows;
       case TargetPlatform.linux:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for linux - '
@@ -37,30 +31,49 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyBTm7dRsBAdzOPJ9ZPp4A7oNZuWu-_JPq4',
-    appId: '1:732037580334:android:80c16743be74479c6101bf',
-    messagingSenderId: '732037580334',
-    projectId: 'ball-lock',
-    storageBucket: 'ball-lock.firebasestorage.app',
+    apiKey: 'AIzaSyDMu4KdXwMIiijBXPN6AXjXD0dMe7NCkzA',
+    appId: '1:919983702313:android:db270015b035465406f738',
+    messagingSenderId: '919983702313',
+    projectId: 'ball-lock-v2',
+    storageBucket: 'ball-lock-v2.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyBhIuWJHcuCnnzklqgRjPP4XNBb1B70dG4',
-    appId: '1:732037580334:ios:11f6ead295e3ccf46101bf',
-    messagingSenderId: '732037580334',
-    projectId: 'ball-lock',
-    storageBucket: 'ball-lock.firebasestorage.app',
-    iosBundleId: 'com.example.ball',
+    apiKey: 'AIzaSyA_bEeghBXkEvMk-bnZFnA23GhO5b51lxQ',
+    appId: '1:919983702313:ios:32af8d805d6c1d3206f738',
+    messagingSenderId: '919983702313',
+    projectId: 'ball-lock-v2',
+    storageBucket: 'ball-lock-v2.firebasestorage.app',
+    iosBundleId: 'com.example.ballLockApp',
   );
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyAD66zc-XaM38g_T-XkYd2B-8-mRDbwcG8',
-    appId: '1:732037580334:web:c8a57a71aa6c02a46101bf',
-    messagingSenderId: '732037580334',
-    projectId: 'ball-lock',
-    authDomain: 'ball-lock.firebaseapp.com',
-    storageBucket: 'ball-lock.firebasestorage.app',
-    measurementId: 'G-WEP4KHQFFG',
+    apiKey: 'AIzaSyDS7AP_ucAcIk56yaHK_e9fRS5gYtaO_hU',
+    appId: '1:919983702313:web:8772bb683ff45ef206f738',
+    messagingSenderId: '919983702313',
+    projectId: 'ball-lock-v2',
+    authDomain: 'ball-lock-v2.firebaseapp.com',
+    storageBucket: 'ball-lock-v2.firebasestorage.app',
+    measurementId: 'G-Y88SXVMPWC',
+  );
+
+  static const FirebaseOptions macos = FirebaseOptions(
+    apiKey: 'AIzaSyA_bEeghBXkEvMk-bnZFnA23GhO5b51lxQ',
+    appId: '1:919983702313:ios:32af8d805d6c1d3206f738',
+    messagingSenderId: '919983702313',
+    projectId: 'ball-lock-v2',
+    storageBucket: 'ball-lock-v2.firebasestorage.app',
+    iosBundleId: 'com.example.ballLockApp',
+  );
+
+  static const FirebaseOptions windows = FirebaseOptions(
+    apiKey: 'AIzaSyDS7AP_ucAcIk56yaHK_e9fRS5gYtaO_hU',
+    appId: '1:919983702313:web:fd52c81f5ada147106f738',
+    messagingSenderId: '919983702313',
+    projectId: 'ball-lock-v2',
+    authDomain: 'ball-lock-v2.firebaseapp.com',
+    storageBucket: 'ball-lock-v2.firebasestorage.app',
+    measurementId: 'G-7M0D7TK2SF',
   );
 
 }
