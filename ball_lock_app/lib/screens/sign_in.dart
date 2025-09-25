@@ -1,5 +1,9 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
-import 'sign_up.dart'; // ← 경로 확인
+import 'package:firebase_auth/firebase_auth.dart';
+
+import '../main.dart';   // ← 로그인 성공 후 이동할 화면
+import 'sign_up.dart';          // ← 회원가입 화면
 
 class SignInPage extends StatefulWidget {
   const SignInPage({super.key});
@@ -12,12 +16,83 @@ class _SignInPageState extends State<SignInPage> {
   final _email = TextEditingController();
   final _password = TextEditingController();
   bool _obscure = true;
+  bool _loading = false;
 
   @override
   void dispose() {
     _email.dispose();
     _password.dispose();
     super.dispose();
+  }
+
+  void _showSnack(String msg) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+  }
+
+  Future<void> _signIn() async {
+    final email = _email.text.trim();
+    final pw = _password.text;
+
+    if (email.isEmpty || pw.isEmpty) {
+      _showSnack('이메일과 비밀번호를 입력해주세요.');
+      return;
+    }
+
+    try {
+      setState(() => _loading = true);
+
+      // 이메일/비밀번호 로그인
+      await FirebaseAuth.instance
+          .signInWithEmailAndPassword(email: email, password: pw)
+          .timeout(const Duration(seconds: 20));
+
+      if (!mounted) return;
+
+      // 로그인 성공 → 메인(HomeScreen)으로 교체 이동
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (_) => const MyApp()),
+            (route) => false,
+      );
+    } on TimeoutException {
+      _showSnack('네트워크가 지연되고 있어요. 잠시 후 다시 시도해주세요.');
+    } on FirebaseAuthException catch (e) {
+      // 대표적인 에러 코드 매핑
+      String msg;
+      switch (e.code) {
+        case 'user-not-found':
+        case 'wrong-password':
+        case 'invalid-credential':
+          msg = '이메일 혹은 비밀번호가 올바르지 않습니다.';
+          break;
+        case 'invalid-email':
+          msg = '잘못된 이메일 형식입니다.';
+          break;
+        case 'user-disabled':
+          msg = '비활성화된 계정입니다.';
+          break;
+        case 'too-many-requests':
+          msg = '요청이 너무 많습니다. 잠시 후 다시 시도해주세요.';
+          break;
+        default:
+          msg = '로그인 실패: ${e.code}';
+      }
+      _showSnack(msg);
+    } catch (e) {
+      _showSnack('오류 발생: $e');
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
+  }
+
+  OutlineInputBorder _inputBorder({bool isFocused = false}) {
+    return OutlineInputBorder(
+      borderRadius: BorderRadius.circular(10),
+      borderSide: BorderSide(
+        color: isFocused ? const Color(0xFF6DB06C) : Colors.transparent,
+        width: 1.2,
+      ),
+    );
   }
 
   @override
@@ -97,7 +172,9 @@ class _SignInPageState extends State<SignInPage> {
                           padding: EdgeInsets.zero,
                           foregroundColor: Colors.grey.shade600,
                         ),
-                        onPressed: () {},
+                        onPressed: () {
+                          // TODO: 비밀번호 재설정 화면으로 이동
+                        },
                         child: const Text('Forgot your password?'),
                       ),
                     ),
@@ -110,18 +187,12 @@ class _SignInPageState extends State<SignInPage> {
 
                     const SizedBox(height: 20),
                     _PrimaryButton(
-                      label: 'Sign In',
-                      onPressed: () {
-                        // TODO: 실제 로그인 처리
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Sign In tapped')),
-                        );
-                      },
+                      label: _loading ? 'Signing In...' : 'Sign In',
+                      onPressed: _loading ? null : _signIn,
                     ),
 
                     const SizedBox(height: 16),
-
-                    // ✅ 회원가입 이동
+                    // 회원가입 이동
                     Center(
                       child: TextButton(
                         onPressed: () async {
@@ -130,11 +201,7 @@ class _SignInPageState extends State<SignInPage> {
                             MaterialPageRoute(builder: (_) => const SignUpPage()),
                           );
                           if (created == true && context.mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('회원가입이 완료되었습니다. 로그인해주세요.'),
-                              ),
-                            );
+                            _showSnack('회원가입이 완료되었습니다. 로그인해주세요.');
                           }
                         },
                         child: Text(
@@ -152,16 +219,6 @@ class _SignInPageState extends State<SignInPage> {
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  OutlineInputBorder _inputBorder({bool isFocused = false}) {
-    return OutlineInputBorder(
-      borderRadius: BorderRadius.circular(10),
-      borderSide: BorderSide(
-        color: isFocused ? const Color(0xFF6DB06C) : Colors.transparent,
-        width: 1.2,
       ),
     );
   }
@@ -267,7 +324,7 @@ class _CircleBrand extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkResponse(
-      onTap: () {},
+      onTap: () {}, // TODO: 소셜 로그인 연결 시 구현
       child: Container(
         width: 48,
         height: 48,
@@ -299,7 +356,7 @@ class _CircleBrand extends StatelessWidget {
 
 class _PrimaryButton extends StatelessWidget {
   final String label;
-  final VoidCallback onPressed;
+  final VoidCallback? onPressed;
   const _PrimaryButton({required this.label, required this.onPressed});
 
   @override
