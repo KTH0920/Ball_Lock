@@ -17,23 +17,15 @@ class _CategoryScreenState extends State<CategoryScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context); // ✅ 테마 불러오기
-
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("검색"),
-        backgroundColor: theme.colorScheme.primary,   // ✅ AppBar 색상 통일
-        foregroundColor: theme.colorScheme.onPrimary, // ✅ 글씨/아이콘 흰색
-      ),
+      appBar: AppBar(title: const Text("Search")),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // ⭐ Stadium
-            Text("야구장",
-                style: theme.textTheme.titleMedium
-                    ?.copyWith(fontWeight: FontWeight.bold)),
+            const Text("Stadium", style: TextStyle(fontWeight: FontWeight.bold)),
             Wrap(
               spacing: 10,
               children: dummyStadiums.map((stadium) {
@@ -41,14 +33,13 @@ class _CategoryScreenState extends State<CategoryScreen> {
                 return ChoiceChip(
                   label: Text(stadium.name),
                   selected: isSelected,
-                  selectedColor: theme.colorScheme.primary, // ✅ 청록색
+                  selectedColor: const Color(0xFF11AB69),
                   labelStyle: TextStyle(
-                    color: isSelected
-                        ? theme.colorScheme.onPrimary
-                        : theme.textTheme.bodyMedium?.color,
+                    color: isSelected ? Colors.white : Colors.black,
                   ),
                   onSelected: (_) {
                     setState(() {
+                      // ✅ 같은 걸 다시 누르면 해제
                       if (isSelected) {
                         selectedStadium = null;
                         selectedCategory = null;
@@ -68,9 +59,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
 
             // ⭐ Category
             if (selectedStadium != null) ...[
-              Text("카테고리",
-                  style: theme.textTheme.titleMedium
-                      ?.copyWith(fontWeight: FontWeight.bold)),
+              const Text("Category", style: TextStyle(fontWeight: FontWeight.bold)),
               Wrap(
                 spacing: 10,
                 children: selectedStadium!.categories.map((cat) {
@@ -78,14 +67,13 @@ class _CategoryScreenState extends State<CategoryScreen> {
                   return ChoiceChip(
                     label: Text(cat.name),
                     selected: isSelected,
-                    selectedColor: theme.colorScheme.primary, // ✅ 청록색
+                    selectedColor: const Color(0xFF11AB69),
                     labelStyle: TextStyle(
-                      color: isSelected
-                          ? theme.colorScheme.onPrimary
-                          : theme.textTheme.bodyMedium?.color,
+                      color: isSelected ? Colors.white : Colors.black,
                     ),
                     onSelected: (_) {
                       setState(() {
+                        // ✅ 같은 걸 다시 누르면 해제
                         if (isSelected) {
                           selectedCategory = null;
                           selectedSubCategory = null;
@@ -104,9 +92,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
 
             // ⭐ SubCategory
             if (selectedCategory != null) ...[
-              Text("세부 카테고리",
-                  style: theme.textTheme.titleMedium
-                      ?.copyWith(fontWeight: FontWeight.bold)),
+              const Text("SubCategory", style: TextStyle(fontWeight: FontWeight.bold)),
               Wrap(
                 spacing: 10,
                 children: selectedCategory!.subCategories.map((sub) {
@@ -114,14 +100,13 @@ class _CategoryScreenState extends State<CategoryScreen> {
                   return ChoiceChip(
                     label: Text(sub),
                     selected: isSelected,
-                    selectedColor: theme.colorScheme.primary, // ✅ 청록색
+                    selectedColor: const Color(0xFF11AB69),
                     labelStyle: TextStyle(
-                      color: isSelected
-                          ? theme.colorScheme.onPrimary
-                          : theme.textTheme.bodyMedium?.color,
+                      color: isSelected ? Colors.white : Colors.black,
                     ),
                     onSelected: (_) {
                       setState(() {
+                        // ✅ 같은 걸 다시 누르면 해제
                         if (isSelected) {
                           selectedSubCategory = null;
                         } else {
@@ -135,23 +120,19 @@ class _CategoryScreenState extends State<CategoryScreen> {
             ],
 
             const Spacer(),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () {
-                  debugPrint(
-                    "Stadium: ${selectedStadium?.name}, "
-                        "Category: ${selectedCategory?.name}, "
-                        "SubCategory: $selectedSubCategory",
-                  );
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: theme.colorScheme.primary,   // ✅ 청록색
-                  foregroundColor: theme.colorScheme.onPrimary, // ✅ 흰 글씨
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                ),
-                child: const Text("필터 적용"),
+            ElevatedButton(
+              onPressed: () {
+                debugPrint(
+                  "Stadium: ${selectedStadium?.name}, "
+                      "Category: ${selectedCategory?.name}, "
+                      "SubCategory: $selectedSubCategory",
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF11AB69),
+                padding: const EdgeInsets.symmetric(vertical: 16),
               ),
+              child: const Text("Filter", style: TextStyle(color: Colors.white)),
             )
           ],
         ),
