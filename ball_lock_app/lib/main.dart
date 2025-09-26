@@ -6,6 +6,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'firebase_options.dart';
 import 'screens/splash_screen.dart';
 import 'screens/home_screen.dart';
+import 'services/db_upload.dart'; // ✅ 우리가 만든 DB 업로드 파일
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -15,6 +16,9 @@ Future<void> main() async {
       options: DefaultFirebaseOptions.currentPlatform,
     );
   }
+
+  // ✅ DB 업로드 실행 (임시)
+  await uploadSuwonData();
 
   runApp(const MyApp());
 }
