@@ -23,22 +23,23 @@ class CategorySelector extends StatelessWidget {
         return ChoiceChip(
           label: Text(category),
           selected: isSelected,
-          selectedColor: const Color(0xFF11AB69),
+          selectedColor: const Color(0xFF1E6F6A), // ✅ 청록색으로 통일
           backgroundColor: Colors.grey[200],
           labelStyle: TextStyle(
             color: isSelected ? Colors.white : Colors.black,
           ),
           shape: StadiumBorder(
             side: BorderSide(
-              color: isSelected ? const Color(0xFF11AB69) : Colors.grey.shade400,
+              color: isSelected
+                  ? const Color(0xFF1E6F6A) // ✅ 선택 시 테두리도 청록색
+                  : Colors.grey.shade400,
             ),
           ),
-          // ChoiceChip의 onSelected 파라미터 활용!
           onSelected: (bool selected) {
             if (selected) {
               onCategorySelected(category); // 선택
             } else {
-              onCategorySelected(null);     // 해제
+              onCategorySelected(null); // 해제
             }
           },
         );

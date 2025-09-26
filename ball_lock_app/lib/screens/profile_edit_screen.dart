@@ -25,8 +25,8 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
       backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
         title: const Text("프로필 수정"),
-        backgroundColor: theme.appBarTheme.backgroundColor,
-        foregroundColor: theme.appBarTheme.foregroundColor,
+        backgroundColor: theme.colorScheme.primary, // ✅ 테마 색상으로 통일
+        foregroundColor: theme.colorScheme.onPrimary,
         elevation: 0,
       ),
       body: Column(
@@ -38,7 +38,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
               Container(
                 height: 160,
                 decoration: BoxDecoration(
-                  color: theme.colorScheme.primary,
+                  color: theme.colorScheme.primary, // ✅ 연두 → 메인 색상
                   borderRadius: const BorderRadius.only(
                     bottomLeft: Radius.circular(60),
                     bottomRight: Radius.circular(60),
@@ -58,7 +58,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                     // TODO: 이미지 업로드 기능
                   },
                   icon: Icon(Icons.add_circle,
-                      color: theme.iconTheme.color, size: 28),
+                      color: theme.colorScheme.onPrimary, size: 28),
                 ),
               ),
             ],
@@ -69,7 +69,6 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
             child: ListView(
               padding: const EdgeInsets.all(16),
               children: [
-                // ✅ 사용자 정보 수정 블럭
                 _buildEditCard(
                   theme: theme,
                   title: "사용자 정보 수정",
@@ -80,7 +79,8 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                     _buildTextField(theme, "E-Mail", _emailController,
                         keyboardType: TextInputType.emailAddress,
                         readOnly: true),
-                    _buildTextField(theme, "Payment Method", _paymentController),
+                    _buildTextField(
+                        theme, "Payment Method", _paymentController),
                   ],
                 ),
               ],
@@ -94,7 +94,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
               width: double.infinity,
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: theme.colorScheme.primary,
+                  backgroundColor: theme.colorScheme.primary, // ✅ 메인 색상
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -121,7 +121,6 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
     );
   }
 
-  /// 블럭(Card) 스타일
   Widget _buildEditCard({
     required ThemeData theme,
     required String title,
@@ -147,7 +146,6 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
     );
   }
 
-  /// 공통 텍스트필드
   Widget _buildTextField(
       ThemeData theme,
       String label,
@@ -164,8 +162,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
         decoration: InputDecoration(
           labelText: label,
           filled: true,
-          fillColor: theme.inputDecorationTheme.fillColor ??
-              theme.colorScheme.surfaceVariant,
+          fillColor: theme.cardColor,
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
             borderSide: BorderSide.none,

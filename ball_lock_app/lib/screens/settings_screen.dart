@@ -15,15 +15,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context); // ✅ 현재 테마 가져오기
     final themeProvider = Provider.of<ThemeProvider>(context);
 
     return Scaffold(
       appBar: AppBar(
         title: const Text("설정"),
         centerTitle: true,
-        backgroundColor: theme.appBarTheme.backgroundColor,
-        foregroundColor: theme.appBarTheme.foregroundColor,
+        backgroundColor: const Color(0xFF1E6F6A), // ✅ 색상 통일
+        foregroundColor: Colors.white,
         elevation: 0,
       ),
       body: ListView(
@@ -31,40 +30,43 @@ class _SettingsScreenState extends State<SettingsScreen> {
           SwitchListTile(
             title: const Text("알림 설정"),
             value: _notification,
+            activeColor: const Color(0xFF1E6F6A), // ✅ 스위치 활성 색상 통일
             onChanged: (val) => setState(() => _notification = val),
           ),
           SwitchListTile(
             title: const Text("위치 확인"),
             value: _location,
+            activeColor: const Color(0xFF1E6F6A), // ✅ 스위치 활성 색상 통일
             onChanged: (val) => setState(() => _location = val),
           ),
           ListTile(
             title: const Text("언어"),
-            trailing: Text("KOR", style: theme.textTheme.bodyMedium),
+            trailing: const Text("KOR"),
             onTap: () {},
           ),
           ListTile(
             title: const Text("온도"),
-            trailing: Text("C°", style: theme.textTheme.bodyMedium),
+            trailing: const Text("C°"),
             onTap: () {},
           ),
           // ✅ 다크모드 Provider 연동
           SwitchListTile(
             title: const Text("다크 모드"),
             value: themeProvider.isDarkMode,
+            activeColor: const Color(0xFF1E6F6A), // ✅ 스위치 색상 맞춤
             onChanged: (val) => themeProvider.toggleTheme(val),
           ),
           const Divider(),
-          ListTile(
-            title: const Text("현재 버전"),
+          const ListTile(
+            title: Text("현재 버전"),
             subtitle: Text(
               "현재 최신 버전입니다.\n버전 1.1.0",
-              style: theme.textTheme.bodySmall,
+              style: TextStyle(fontSize: 12),
             ),
           ),
           ListTile(
             title: const Text("로그아웃"),
-            trailing: Icon(Icons.logout, color: theme.colorScheme.error),
+            trailing: const Icon(Icons.logout, color: Colors.red),
             onTap: () {
               // TODO: 로그아웃 로직 추가
             },

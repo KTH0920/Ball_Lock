@@ -13,12 +13,16 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    // 3초 후 HomeScreen으로 이동
-    Timer(const Duration(seconds: 3), () {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const HomeScreen()),
-      );
+    // 프레임이 다 그려진 다음에 Navigator 실행
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Timer(const Duration(seconds: 3), () {
+        if (mounted) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const HomeScreen()),
+          );
+        }
+      });
     });
   }
 
@@ -27,7 +31,7 @@ class _SplashScreenState extends State<SplashScreen> {
     final theme = Theme.of(context);
 
     return Scaffold(
-      backgroundColor: theme.colorScheme.primary, // ✅ 테마의 메인 컬러 사용
+      backgroundColor: theme.colorScheme.primary, // ✅ 테마 기반 색상
       body: Center(
         child: Image.asset(
           "assets/images/food_locker_logo.png",

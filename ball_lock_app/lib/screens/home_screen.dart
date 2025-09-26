@@ -19,27 +19,22 @@ class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
   String? selectedCategory;
 
-  late final List<Widget> _pages;
-
   @override
-  void initState() {
-    super.initState();
-    _pages = [
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    // ✅ build 안에서 안전하게 초기화
+    final pages = [
       _buildHomePage(),
       const FavoritesScreen(),
       const CartScreen(),
       const ProfileScreen(),
     ];
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
       body: SafeArea(
-        child: _pages[_currentIndex],
+        child: pages[_currentIndex],
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,

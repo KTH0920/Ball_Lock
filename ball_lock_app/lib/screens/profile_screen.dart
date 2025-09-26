@@ -16,8 +16,8 @@ class ProfileScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text("프로필"),
-        backgroundColor: theme.appBarTheme.backgroundColor,
-        foregroundColor: theme.appBarTheme.foregroundColor,
+        backgroundColor: const Color(0xFF1E6F6A), // ✅ 통일된 색상
+        foregroundColor: Colors.white,
         elevation: 0,
         actions: [
           // ✅ 설정 아이콘
@@ -51,9 +51,9 @@ class ProfileScreen extends StatelessWidget {
             children: [
               Container(
                 height: 160,
-                decoration: BoxDecoration(
-                  color: theme.colorScheme.primary,
-                  borderRadius: const BorderRadius.only(
+                decoration: const BoxDecoration(
+                  color: Color(0xFF1E6F6A), // ✅ 통일된 색상
+                  borderRadius: BorderRadius.only(
                     bottomLeft: Radius.circular(60),
                     bottomRight: Radius.circular(60),
                   ),
@@ -61,7 +61,7 @@ class ProfileScreen extends StatelessWidget {
               ),
               CircleAvatar(
                 radius: 50,
-                backgroundColor: theme.colorScheme.onPrimary,
+                backgroundColor: Colors.white,
                 child: Icon(Icons.person,
                     size: 55, color: theme.iconTheme.color),
               ),
@@ -110,7 +110,7 @@ class ProfileScreen extends StatelessWidget {
               width: double.infinity,
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: theme.colorScheme.primary,
+                  backgroundColor: const Color(0xFF1E6F6A), // ✅ 버튼 색상도 통일
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -123,11 +123,11 @@ class ProfileScreen extends StatelessWidget {
                         builder: (_) => const ProfileEditScreen()),
                   );
                 },
-                child: Text(
+                child: const Text(
                   "프로필 수정하기",
-                  style: theme.textTheme.labelLarge?.copyWith(
+                  style: TextStyle(
                     fontSize: 18,
-                    color: theme.colorScheme.onPrimary,
+                    color: Colors.white,
                   ),
                 ),
               ),

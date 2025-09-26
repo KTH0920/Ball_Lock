@@ -22,8 +22,8 @@ class _CategoryScreenState extends State<CategoryScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("검색"),
-        backgroundColor: theme.appBarTheme.backgroundColor,
-        foregroundColor: theme.appBarTheme.foregroundColor,
+        backgroundColor: theme.colorScheme.primary,   // ✅ AppBar 색상 통일
+        foregroundColor: theme.colorScheme.onPrimary, // ✅ 글씨/아이콘 흰색
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
@@ -41,7 +41,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
                 return ChoiceChip(
                   label: Text(stadium.name),
                   selected: isSelected,
-                  selectedColor: theme.colorScheme.primary,
+                  selectedColor: theme.colorScheme.primary, // ✅ 청록색
                   labelStyle: TextStyle(
                     color: isSelected
                         ? theme.colorScheme.onPrimary
@@ -78,7 +78,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
                   return ChoiceChip(
                     label: Text(cat.name),
                     selected: isSelected,
-                    selectedColor: theme.colorScheme.primary,
+                    selectedColor: theme.colorScheme.primary, // ✅ 청록색
                     labelStyle: TextStyle(
                       color: isSelected
                           ? theme.colorScheme.onPrimary
@@ -114,7 +114,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
                   return ChoiceChip(
                     label: Text(sub),
                     selected: isSelected,
-                    selectedColor: theme.colorScheme.primary,
+                    selectedColor: theme.colorScheme.primary, // ✅ 청록색
                     labelStyle: TextStyle(
                       color: isSelected
                           ? theme.colorScheme.onPrimary
@@ -146,12 +146,11 @@ class _CategoryScreenState extends State<CategoryScreen> {
                   );
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: theme.colorScheme.primary,
+                  backgroundColor: theme.colorScheme.primary,   // ✅ 청록색
+                  foregroundColor: theme.colorScheme.onPrimary, // ✅ 흰 글씨
                   padding: const EdgeInsets.symmetric(vertical: 16),
                 ),
-                child: Text("필터 적용",
-                    style: theme.textTheme.labelLarge
-                        ?.copyWith(color: theme.colorScheme.onPrimary)),
+                child: const Text("필터 적용"),
               ),
             )
           ],
