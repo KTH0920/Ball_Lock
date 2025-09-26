@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'profile_edit_screen.dart';
 import 'sign_in.dart';
@@ -8,10 +9,21 @@ import 'settings_screen.dart'; // ✅ 설정 화면 import
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
+  Future<Map<String, dynamic>?> _getUserData() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return null;
+
+    final doc = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(user.uid)
+        .get();
+
+    return doc.data();
+  }
+
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context); // ✅ 테마 불러오기
-    final user = FirebaseAuth.instance.currentUser;
+    final theme = Theme.of(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -43,97 +55,112 @@ class ProfileScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: Column(
-        children: [
-          // 상단 배경 + 아바타
-          Stack(
-            alignment: Alignment.center,
+      body: FutureBuilder<Map<String, dynamic>?>(
+        future: _getUserData(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          if (!snapshot.hasData || snapshot.data == null) {
+            return const Center(child: Text("사용자 정보를 불러올 수 없습니다."));
+          }
+
+          final data = snapshot.data!;
+          final name = data['name'] ?? "사용자";
+          final email = data['email'] ?? "이메일 없음";
+          final phone = data['phone'] ?? "+82 010-0000-0000";
+          final marketing = data['marketing'] == true ? "동의" : "비동의";
+
+          return Column(
             children: [
-              Container(
-                height: 160,
-                decoration: const BoxDecoration(
-                  color: Color(0xFF1E6F6A), // ✅ 통일된 색상
-                  borderRadius: BorderRadius.only(
-                    bottomLeft: Radius.circular(60),
-                    bottomRight: Radius.circular(60),
+              // 상단 배경 + 아바타
+              Stack(
+                alignment: Alignment.center,
+                children: [
+                  Container(
+                    height: 160,
+                    decoration: const BoxDecoration(
+                      color: Color(0xFF1E6F6A), // ✅ 통일된 색상
+                      borderRadius: BorderRadius.only(
+                        bottomLeft: Radius.circular(60),
+                        bottomRight: Radius.circular(60),
+                      ),
+                    ),
                   ),
+                  CircleAvatar(
+                    radius: 50,
+                    backgroundColor: Colors.white,
+                    child: Icon(Icons.person,
+                        size: 55, color: theme.iconTheme.color),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+
+              Expanded(
+                child: ListView(
+                  padding: const EdgeInsets.all(16),
+                  children: [
+                    // 사용자 정보 카드
+                    _buildInfoCard(
+                      theme: theme,
+                      title: "사용자 정보",
+                      children: [
+                        _buildInfoRow(theme, Icons.person, "Name", name),
+                        _buildInfoRow(theme, Icons.phone, "Phone no.", phone),
+                        _buildInfoRow(theme, Icons.email, "E-Mail", email),
+                        _buildInfoRow(theme, Icons.check_circle, "마케팅 동의", marketing),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+
+                    // 쿠폰함 카드 (샘플)
+                    _buildInfoCard(
+                      theme: theme,
+                      title: "내 쿠폰함",
+                      children: [
+                        _buildInfoRow(theme, Icons.card_giftcard, "보유 쿠폰", "3장"),
+                        _buildInfoRow(theme, Icons.discount, "할인 혜택", "10% 할인 쿠폰"),
+                      ],
+                    ),
+                  ],
                 ),
               ),
-              CircleAvatar(
-                radius: 50,
-                backgroundColor: Colors.white,
-                child: Icon(Icons.person,
-                    size: 55, color: theme.iconTheme.color),
-              ),
+
+              // 프로필 수정 버튼
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                child: SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF1E6F6A), // ✅ 버튼 색상도 통일
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                    ),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) => const ProfileEditScreen()),
+                      );
+                    },
+                    child: const Text(
+                      "프로필 수정하기",
+                      style: TextStyle(
+                        fontSize: 18,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ),
+              )
             ],
-          ),
-          const SizedBox(height: 20),
-
-          Expanded(
-            child: ListView(
-              padding: const EdgeInsets.all(16),
-              children: [
-                // 사용자 정보 카드
-                _buildInfoCard(
-                  theme: theme,
-                  title: "사용자 정보",
-                  children: [
-                    _buildInfoRow(theme, Icons.person, "Name",
-                        user?.displayName ?? "사용자"),
-                    _buildInfoRow(theme, Icons.phone, "Phone no.",
-                        "+82 010-0000-0000"),
-                    _buildInfoRow(theme, Icons.email, "E-Mail",
-                        user?.email ?? "이메일 없음"),
-                    _buildInfoRow(
-                        theme, Icons.payment, "Payment Method", "등록된 카드 없음"),
-                  ],
-                ),
-                const SizedBox(height: 20),
-
-                // 쿠폰함 카드
-                _buildInfoCard(
-                  theme: theme,
-                  title: "내 쿠폰함",
-                  children: [
-                    _buildInfoRow(theme, Icons.card_giftcard, "보유 쿠폰", "3장"),
-                    _buildInfoRow(theme, Icons.discount, "할인 혜택", "10% 할인 쿠폰"),
-                  ],
-                ),
-              ],
-            ),
-          ),
-
-          // 프로필 수정 버튼
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-            child: SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF1E6F6A), // ✅ 버튼 색상도 통일
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                ),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (_) => const ProfileEditScreen()),
-                  );
-                },
-                child: const Text(
-                  "프로필 수정하기",
-                  style: TextStyle(
-                    fontSize: 18,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-            ),
-          )
-        ],
+          );
+        },
       ),
     );
   }

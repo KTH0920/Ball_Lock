@@ -6,7 +6,8 @@ import 'sign_in.dart';
 import 'profile_screen.dart';
 import 'favorites_page.dart';
 import 'cart_screen.dart';
-import 'notification_screen.dart'; // ✅ 알림 화면 추가
+import 'notification_screen.dart';
+import 'my_page_screen.dart'; // ✅ 마이페이지 import
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -23,12 +24,12 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    // ✅ build 안에서 안전하게 초기화
+    // ✅ BottomNavigationBar 페이지들
     final pages = [
       _buildHomePage(),
       const FavoritesScreen(),
       const CartScreen(),
-      const ProfileScreen(),
+      const MyPageScreen(), // ✅ ProfileScreen 대신 MyPageScreen
     ];
 
     return Scaffold(
@@ -45,17 +46,13 @@ class _HomeScreenState extends State<HomeScreen> {
           if (i == 3) {
             final user = FirebaseAuth.instance.currentUser;
             if (user == null) {
+              // 로그인 안 되어 있으면 로그인 페이지로 이동
               await Navigator.push(
                 context,
                 MaterialPageRoute(builder: (_) => const SignInPage()),
               );
-            } else {
-              await Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const ProfileScreen()),
-              );
+              return;
             }
-            return;
           }
           setState(() => _currentIndex = i);
         },
@@ -63,13 +60,13 @@ class _HomeScreenState extends State<HomeScreen> {
           BottomNavigationBarItem(icon: Icon(Icons.home), label: "홈"),
           BottomNavigationBarItem(icon: Icon(Icons.favorite_border), label: "관심목록"),
           BottomNavigationBarItem(icon: Icon(Icons.shopping_cart_outlined), label: "장바구니"),
-          BottomNavigationBarItem(icon: Icon(Icons.person_outline), label: "프로필"),
+          BottomNavigationBarItem(icon: Icon(Icons.person_outline), label: "마이페이지"),
         ],
       ),
     );
   }
 
-  // ✅ 홈 화면 위젯
+  // ✅ 홈 화면
   Widget _buildHomePage() {
     final theme = Theme.of(context);
 
@@ -78,7 +75,7 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 상단 타이틀
+          // 상단 타이틀 + 알림
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -175,7 +172,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           const SizedBox(height: 15),
 
-          // 추천 메뉴
+          // 추천 메뉴 카드
           Row(
             children: [
               Expanded(

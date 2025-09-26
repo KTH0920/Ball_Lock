@@ -13,6 +13,7 @@ class SignUpPage extends StatefulWidget {
 class _SignUpPageState extends State<SignUpPage> {
   final _name = TextEditingController();
   final _email = TextEditingController();
+  final _phone = TextEditingController(); // ✅ 전화번호 컨트롤러 추가
   final _password = TextEditingController();
   final _confirm = TextEditingController();
 
@@ -25,6 +26,7 @@ class _SignUpPageState extends State<SignUpPage> {
   void dispose() {
     _name.dispose();
     _email.dispose();
+    _phone.dispose(); // ✅ 해제 추가
     _password.dispose();
     _confirm.dispose();
     super.dispose();
@@ -49,10 +51,11 @@ class _SignUpPageState extends State<SignUpPage> {
   Future<void> _createAccount() async {
     final name = _name.text.trim();
     final email = _email.text.trim();
+    final phone = _phone.text.trim(); // ✅ 전화번호 추가
     final pw = _password.text;
     final cf = _confirm.text;
 
-    if (name.isEmpty || email.isEmpty || pw.isEmpty || cf.isEmpty) {
+    if (name.isEmpty || email.isEmpty || phone.isEmpty || pw.isEmpty || cf.isEmpty) {
       _showError('모든 필드를 입력해주세요.');
       return;
     }
@@ -76,6 +79,7 @@ class _SignUpPageState extends State<SignUpPage> {
         'uid': cred.user!.uid,
         'name': name,
         'email': email,
+        'phone': phone, // ✅ Firestore에 저장
         'marketing': _marketing,
         'createdAt': FieldValue.serverTimestamp(),
       }).timeout(const Duration(seconds: 20));
@@ -119,7 +123,7 @@ class _SignUpPageState extends State<SignUpPage> {
     final theme = Theme.of(context);
 
     return Scaffold(
-      backgroundColor: theme.colorScheme.background, // ✅ 테마 배경
+      backgroundColor: theme.colorScheme.background,
       body: SafeArea(
         child: Column(
           children: [
@@ -164,6 +168,15 @@ class _SignUpPageState extends State<SignUpPage> {
                     ),
                     const SizedBox(height: 14),
 
+                    // ✅ 전화번호 입력란
+                    _filledField(
+                      context,
+                      controller: _phone,
+                      hint: 'Phone Number',
+                      keyboardType: TextInputType.phone,
+                    ),
+                    const SizedBox(height: 14),
+
                     // 비밀번호
                     TextField(
                       controller: _password,
@@ -171,7 +184,7 @@ class _SignUpPageState extends State<SignUpPage> {
                       decoration: InputDecoration(
                         hintText: 'Password',
                         filled: true,
-                        fillColor: theme.colorScheme.surfaceVariant, // ✅ 테마 적용
+                        fillColor: theme.colorScheme.surfaceVariant,
                         contentPadding:
                         const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
                         border: _border(context),
@@ -219,7 +232,7 @@ class _SignUpPageState extends State<SignUpPage> {
                       children: [
                         Checkbox(
                           value: _marketing,
-                          activeColor: theme.colorScheme.primary, // ✅ 테마 색상
+                          activeColor: theme.colorScheme.primary,
                           onChanged: (v) => setState(() => _marketing = v ?? false),
                         ),
                         Expanded(
@@ -264,7 +277,7 @@ class _SignUpPageState extends State<SignUpPage> {
       decoration: InputDecoration(
         hintText: hint,
         filled: true,
-        fillColor: theme.colorScheme.surfaceVariant, // ✅ 테마 적용
+        fillColor: theme.colorScheme.surfaceVariant,
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
         border: _border(context),
         enabledBorder: _border(context),
@@ -387,7 +400,7 @@ class PrimaryButton extends StatelessWidget {
       height: 52,
       child: FilledButton(
         style: FilledButton.styleFrom(
-          backgroundColor: theme.colorScheme.primary, // ✅ 테마 적용
+          backgroundColor: theme.colorScheme.primary,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
           textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
         ),
