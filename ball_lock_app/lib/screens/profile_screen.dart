@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'profile_edit_screen.dart';
+import 'sign_in.dart'; // 로그인 페이지 import
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -17,9 +19,23 @@ class ProfileScreen extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.edit),
             onPressed: () {
-              // TODO: 프로필 수정 페이지로 이동
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const ProfileEditScreen()),
+              );
             },
           ),
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: () async {
+              await FirebaseAuth.instance.signOut(); // ✅ 로그아웃
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (_) => const SignInPage()),
+              );
+            },
+          ),
+
         ],
       ),
       body: Column(
@@ -51,7 +67,6 @@ class ProfileScreen extends StatelessWidget {
             child: ListView(
               padding: const EdgeInsets.all(16),
               children: [
-                // 사용자 정보 블럭
                 _buildInfoCard(
                   title: "사용자 정보",
                   children: [
@@ -62,8 +77,6 @@ class ProfileScreen extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 20),
-
-                // 쿠폰함 블럭
                 _buildInfoCard(
                   title: "내 쿠폰함",
                   children: [
@@ -89,7 +102,10 @@ class ProfileScreen extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(vertical: 16),
                 ),
                 onPressed: () {
-                  // TODO: 프로필 수정 페이지로 이동
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const ProfileEditScreen()),
+                  );
                 },
                 child: const Text(
                   "프로필 수정하기",
@@ -103,7 +119,6 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  /// 정보 카드 (블럭 스타일)
   Widget _buildInfoCard({required String title, required List<Widget> children}) {
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -125,7 +140,6 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  /// 한 줄 정보
   Widget _buildInfoRow(IconData icon, String label, String value) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),

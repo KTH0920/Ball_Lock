@@ -2,8 +2,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-import '../main.dart';   // ← 로그인 성공 후 이동할 화면
-import 'sign_up.dart';          // ← 회원가입 화면
+import 'sign_up.dart';          // 회원가입 화면
+import 'home_screen.dart';      // ✅ 로그인 성공 후 이동할 메인 화면
 
 class SignInPage extends StatefulWidget {
   const SignInPage({super.key});
@@ -49,15 +49,14 @@ class _SignInPageState extends State<SignInPage> {
 
       if (!mounted) return;
 
-      // 로그인 성공 → 메인(HomeScreen)으로 교체 이동
+      // ✅ 로그인 성공 → 홈 화면으로 교체 이동
       Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (_) => const MyApp()),
-            (route) => false,
+        MaterialPageRoute(builder: (_) => const HomeScreen()),
+            (route) => false, // 뒤로가기 시 로그인 페이지 안 뜨게
       );
     } on TimeoutException {
       _showSnack('네트워크가 지연되고 있어요. 잠시 후 다시 시도해주세요.');
     } on FirebaseAuthException catch (e) {
-      // 대표적인 에러 코드 매핑
       String msg;
       switch (e.code) {
         case 'user-not-found':
