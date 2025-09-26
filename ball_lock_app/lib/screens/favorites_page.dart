@@ -5,13 +5,15 @@ class FavoritesScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context); // ✅ 테마 가져오기
+
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: Colors.white,
-          border: Border.all(color: Colors.black26),
+          color: theme.cardColor, // ✅ 카드 배경
+          border: Border.all(color: theme.dividerColor), // ✅ 테마 경계선
           borderRadius: BorderRadius.circular(12),
         ),
         child: Column(
@@ -21,18 +23,21 @@ class FavoritesScreen extends StatelessWidget {
             Expanded(
               child: ListView.separated(
                 itemCount: 5,
-                separatorBuilder: (_, __) => const Divider(),
+                separatorBuilder: (_, __) => Divider(color: theme.dividerColor),
                 itemBuilder: (context, index) {
                   return ListTile(
                     leading: Container(
                       width: 60,
                       height: 70,
                       decoration: BoxDecoration(
-                        color: Colors.grey[300],
+                        color: theme.colorScheme.surfaceVariant, // ✅ 이미지 자리
                         borderRadius: BorderRadius.circular(8),
                       ),
                     ),
-                    title: const Text("1x item"),
+                    title: Text(
+                      "1x item",
+                      style: theme.textTheme.bodyMedium,
+                    ),
                     contentPadding: EdgeInsets.zero,
                   );
                 },
@@ -42,20 +47,25 @@ class FavoritesScreen extends StatelessWidget {
             const SizedBox(height: 16),
 
             // Notes 입력창
-            const Align(
+            Align(
               alignment: Alignment.centerLeft,
               child: Text(
-                "Notes",
-                style: TextStyle(fontWeight: FontWeight.w500),
+                "메모",
+                style: theme.textTheme.titleMedium
+                    ?.copyWith(fontWeight: FontWeight.w600),
               ),
             ),
             const SizedBox(height: 6),
             TextField(
               decoration: InputDecoration(
-                hintText: "Add order notes",
-                contentPadding: EdgeInsets.symmetric(horizontal: 16),
+                hintText: "주문 관련 메모를 입력하세요",
+                hintStyle: theme.textTheme.bodyMedium?.copyWith(
+                  color: theme.hintColor,
+                ),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 16),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(30),
+                  borderSide: BorderSide(color: theme.dividerColor),
                 ),
               ),
             ),
@@ -70,18 +80,18 @@ class FavoritesScreen extends StatelessWidget {
                 child: ElevatedButton(
                   onPressed: () {},
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF11AB69),
+                    backgroundColor: theme.colorScheme.primary,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    padding: EdgeInsets.symmetric(vertical: 12),
+                    padding: const EdgeInsets.symmetric(vertical: 12),
                   ),
-                  child: const Text(
-                    "Filter",
-                    style: TextStyle(
+                  child: Text(
+                    "필터 적용",
+                    style: theme.textTheme.labelLarge?.copyWith(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
-                      color: Colors.white,
+                      color: theme.colorScheme.onPrimary,
                     ),
                   ),
                 ),

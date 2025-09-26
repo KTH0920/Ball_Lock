@@ -5,6 +5,8 @@ import 'category_screen.dart';
 import 'sign_in.dart';
 import 'profile_screen.dart';
 import 'favorites_page.dart';
+import 'cart_screen.dart';
+import 'notification_screen.dart'; // ✅ 알림 화면 추가
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -17,7 +19,6 @@ class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
   String? selectedCategory;
 
-  // ✅ 각 탭에서 보여줄 화면들
   late final List<Widget> _pages;
 
   @override
@@ -25,29 +26,28 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     _pages = [
       _buildHomePage(),
-      const FavoritesScreen(), // 관심목록 화면
-      const Center(child: Text("Cart Page")), // 장바구니 (임시)
-      const Center(child: Text("Profile Page")), // 프로필 (임시, 로그인시 교체)
+      const FavoritesScreen(),
+      const CartScreen(),
+      const ProfileScreen(),
     ];
   }
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: SafeArea(
         child: _pages[_currentIndex],
       ),
-
-      // ✅ 하단 네비게이션바
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
-        selectedItemColor: const Color(0xFF11AB69),
-        unselectedItemColor: Colors.grey,
+        selectedItemColor: theme.colorScheme.primary,
+        unselectedItemColor: theme.disabledColor,
         showUnselectedLabels: true,
         onTap: (i) async {
           if (i == 3) {
-            // 프로필 탭
             final user = FirebaseAuth.instance.currentUser;
             if (user == null) {
               await Navigator.push(
@@ -65,10 +65,10 @@ class _HomeScreenState extends State<HomeScreen> {
           setState(() => _currentIndex = i);
         },
         items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
-          BottomNavigationBarItem(icon: Icon(Icons.favorite_border), label: "Favorites"),
-          BottomNavigationBarItem(icon: Icon(Icons.shopping_cart_outlined), label: "Cart"),
-          BottomNavigationBarItem(icon: Icon(Icons.person_outline), label: "Profile"),
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: "홈"),
+          BottomNavigationBarItem(icon: Icon(Icons.favorite_border), label: "관심목록"),
+          BottomNavigationBarItem(icon: Icon(Icons.shopping_cart_outlined), label: "장바구니"),
+          BottomNavigationBarItem(icon: Icon(Icons.person_outline), label: "프로필"),
         ],
       ),
     );
@@ -76,6 +76,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   // ✅ 홈 화면 위젯
   Widget _buildHomePage() {
+    final theme = Theme.of(context);
+
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16.0),
       child: Column(
@@ -85,15 +87,20 @@ class _HomeScreenState extends State<HomeScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
+              Text(
                 "Food\nLocker!",
-                style: TextStyle(
-                  fontSize: 28,
+                style: theme.textTheme.headlineMedium?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
               ),
               IconButton(
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (_) => const NotificationScreen()),
+                  );
+                },
                 icon: const Icon(Icons.notifications_none),
               ),
             ],
@@ -112,7 +119,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       borderRadius: BorderRadius.circular(12),
                       borderSide: BorderSide.none,
                     ),
-                    fillColor: Colors.grey[200],
+                    fillColor: theme.colorScheme.surfaceVariant,
                     filled: true,
                   ),
                 ),
@@ -128,22 +135,24 @@ class _HomeScreenState extends State<HomeScreen> {
                   );
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF11AB69),
+                  backgroundColor: theme.colorScheme.primary,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
                   padding: const EdgeInsets.all(14),
                 ),
-                child: const Icon(Icons.tune, color: Colors.white),
+                child: Icon(Icons.tune, color: theme.colorScheme.onPrimary),
               ),
             ],
           ),
           const SizedBox(height: 30),
 
           // 카테고리 타이틀
-          const Text(
-            "Categories",
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          Text(
+            "카테고리",
+            style: theme.textTheme.titleLarge?.copyWith(
+              fontWeight: FontWeight.bold,
+            ),
           ),
           const SizedBox(height: 15),
 
@@ -153,19 +162,21 @@ class _HomeScreenState extends State<HomeScreen> {
             child: ListView(
               scrollDirection: Axis.horizontal,
               children: [
-                _buildCategory("Sandwich", "assets/images/sandwich.png"),
-                _buildCategory("Pizza", "assets/images/pizza.png"),
-                _buildCategory("Burger", "assets/images/burger.png"),
-                _buildCategory("Drinks", "assets/images/drinks.png"),
+                _buildCategory("샌드위치", "assets/images/sandwich.png"),
+                _buildCategory("피자", "assets/images/pizza.png"),
+                _buildCategory("버거", "assets/images/burger.png"),
+                _buildCategory("음료", "assets/images/drinks.png"),
               ],
             ),
           ),
           const SizedBox(height: 30),
 
           // 추천 타이틀
-          const Text(
-            "Recommended",
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          Text(
+            "추천 메뉴",
+            style: theme.textTheme.titleLarge?.copyWith(
+              fontWeight: FontWeight.bold,
+            ),
           ),
           const SizedBox(height: 15),
 
@@ -174,12 +185,12 @@ class _HomeScreenState extends State<HomeScreen> {
             children: [
               Expanded(
                 child: _buildFoodCard(
-                    "Sandwich", "\$15.50", "assets/images/sandwich.png"),
+                    "샌드위치", "\$15.50", "assets/images/sandwich.png"),
               ),
               const SizedBox(width: 12),
               Expanded(
                 child: _buildFoodCard(
-                    "Hamburger", "\$19.99", "assets/images/burger.png"),
+                    "햄버거", "\$19.99", "assets/images/burger.png"),
               ),
             ],
           ),
@@ -190,7 +201,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
   // ✅ 카테고리 카드
   Widget _buildCategory(String title, String imagePath) {
+    final theme = Theme.of(context);
     final bool isSelected = selectedCategory == title;
+
     return GestureDetector(
       onTap: () {
         setState(() {
@@ -201,10 +214,14 @@ class _HomeScreenState extends State<HomeScreen> {
         width: 90,
         margin: const EdgeInsets.only(right: 12),
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFF11AB69) : Colors.grey[200],
+          color: isSelected
+              ? theme.colorScheme.primary
+              : theme.colorScheme.surfaceVariant,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: isSelected ? const Color(0xFF11AB69) : Colors.transparent,
+            color: isSelected
+                ? theme.colorScheme.primary
+                : Colors.transparent,
             width: 2,
           ),
         ),
@@ -216,7 +233,9 @@ class _HomeScreenState extends State<HomeScreen> {
             Text(
               title,
               style: TextStyle(
-                color: isSelected ? Colors.white : Colors.black,
+                color: isSelected
+                    ? theme.colorScheme.onPrimary
+                    : theme.textTheme.bodyMedium?.color,
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
               ),
             ),
@@ -228,14 +247,16 @@ class _HomeScreenState extends State<HomeScreen> {
 
   // ✅ 음식 카드
   Widget _buildFoodCard(String title, String price, String imagePath) {
+    final theme = Theme.of(context);
+
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.grey[100],
+        color: theme.colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.2),
+            color: theme.shadowColor.withOpacity(0.1),
             blurRadius: 6,
             offset: const Offset(0, 4),
           ),
@@ -254,11 +275,14 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
           const SizedBox(height: 10),
-          Text(title,
-              style: const TextStyle(
-                  fontWeight: FontWeight.bold, fontSize: 16)),
-          Text("Starting From $price",
-              style: const TextStyle(color: Colors.green)),
+          Text(
+            title,
+            style: theme.textTheme.titleMedium
+                ?.copyWith(fontWeight: FontWeight.bold),
+          ),
+          Text("가격: $price",
+              style: theme.textTheme.bodyMedium
+                  ?.copyWith(color: theme.colorScheme.primary)),
         ],
       ),
     );

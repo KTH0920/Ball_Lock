@@ -1,41 +1,46 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+
 import 'profile_edit_screen.dart';
-import 'sign_in.dart'; // 로그인 페이지 import
+import 'sign_in.dart';
+import 'settings_screen.dart'; // ✅ 설정 화면 import
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context); // ✅ 테마 불러오기
     final user = FirebaseAuth.instance.currentUser;
 
     return Scaffold(
       appBar: AppBar(
         title: const Text("프로필"),
-        backgroundColor: const Color(0xFF11AB69),
+        backgroundColor: theme.appBarTheme.backgroundColor,
+        foregroundColor: theme.appBarTheme.foregroundColor,
         elevation: 0,
         actions: [
+          // ✅ 설정 아이콘
           IconButton(
-            icon: const Icon(Icons.edit),
+            icon: const Icon(Icons.settings),
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (_) => const ProfileEditScreen()),
+                MaterialPageRoute(builder: (_) => const SettingsScreen()),
               );
             },
           ),
+          // ✅ 로그아웃 아이콘
           IconButton(
             icon: const Icon(Icons.logout),
             onPressed: () async {
-              await FirebaseAuth.instance.signOut(); // ✅ 로그아웃
+              await FirebaseAuth.instance.signOut();
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(builder: (_) => const SignInPage()),
               );
             },
           ),
-
         ],
       ),
       body: Column(
@@ -46,18 +51,19 @@ class ProfileScreen extends StatelessWidget {
             children: [
               Container(
                 height: 160,
-                decoration: const BoxDecoration(
-                  color: Color(0xFF11AB69),
-                  borderRadius: BorderRadius.only(
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.primary,
+                  borderRadius: const BorderRadius.only(
                     bottomLeft: Radius.circular(60),
                     bottomRight: Radius.circular(60),
                   ),
                 ),
               ),
-              const CircleAvatar(
+              CircleAvatar(
                 radius: 50,
-                backgroundColor: Colors.white,
-                child: Icon(Icons.person, size: 55, color: Colors.grey),
+                backgroundColor: theme.colorScheme.onPrimary,
+                child: Icon(Icons.person,
+                    size: 55, color: theme.iconTheme.color),
               ),
             ],
           ),
@@ -67,35 +73,44 @@ class ProfileScreen extends StatelessWidget {
             child: ListView(
               padding: const EdgeInsets.all(16),
               children: [
+                // 사용자 정보 카드
                 _buildInfoCard(
+                  theme: theme,
                   title: "사용자 정보",
                   children: [
-                    _buildInfoRow(Icons.person, "Name", user?.displayName ?? "사용자"),
-                    _buildInfoRow(Icons.phone, "Phone no.", "+82 010-0000-0000"),
-                    _buildInfoRow(Icons.email, "E-Mail", user?.email ?? "이메일 없음"),
-                    _buildInfoRow(Icons.payment, "Payment Method", "등록된 카드 없음"),
+                    _buildInfoRow(theme, Icons.person, "Name",
+                        user?.displayName ?? "사용자"),
+                    _buildInfoRow(theme, Icons.phone, "Phone no.",
+                        "+82 010-0000-0000"),
+                    _buildInfoRow(theme, Icons.email, "E-Mail",
+                        user?.email ?? "이메일 없음"),
+                    _buildInfoRow(
+                        theme, Icons.payment, "Payment Method", "등록된 카드 없음"),
                   ],
                 ),
                 const SizedBox(height: 20),
+
+                // 쿠폰함 카드
                 _buildInfoCard(
+                  theme: theme,
                   title: "내 쿠폰함",
                   children: [
-                    _buildInfoRow(Icons.card_giftcard, "보유 쿠폰", "3장"),
-                    _buildInfoRow(Icons.discount, "할인 혜택", "10% 할인 쿠폰"),
+                    _buildInfoRow(theme, Icons.card_giftcard, "보유 쿠폰", "3장"),
+                    _buildInfoRow(theme, Icons.discount, "할인 혜택", "10% 할인 쿠폰"),
                   ],
                 ),
               ],
             ),
           ),
 
-          // 수정 버튼
+          // 프로필 수정 버튼
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
             child: SizedBox(
               width: double.infinity,
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF11AB69),
+                  backgroundColor: theme.colorScheme.primary,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -104,12 +119,16 @@ class ProfileScreen extends StatelessWidget {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (_) => const ProfileEditScreen()),
+                    MaterialPageRoute(
+                        builder: (_) => const ProfileEditScreen()),
                   );
                 },
-                child: const Text(
+                child: Text(
                   "프로필 수정하기",
-                  style: TextStyle(fontSize: 18, color: Colors.white),
+                  style: theme.textTheme.labelLarge?.copyWith(
+                    fontSize: 18,
+                    color: theme.colorScheme.onPrimary,
+                  ),
                 ),
               ),
             ),
@@ -119,7 +138,12 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildInfoCard({required String title, required List<Widget> children}) {
+  /// 공통 카드 위젯
+  Widget _buildInfoCard({
+    required ThemeData theme,
+    required String title,
+    required List<Widget> children,
+  }) {
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       elevation: 4,
@@ -130,8 +154,8 @@ class ProfileScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(title,
-                style: const TextStyle(
-                    fontSize: 18, fontWeight: FontWeight.bold)),
+                style: theme.textTheme.titleMedium
+                    ?.copyWith(fontWeight: FontWeight.bold)),
             const Divider(height: 20, thickness: 1),
             ...children,
           ],
@@ -140,23 +164,24 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildInfoRow(IconData icon, String label, String value) {
+  /// 공통 정보 행 위젯
+  Widget _buildInfoRow(
+      ThemeData theme, IconData icon, String label, String value) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
         children: [
-          Icon(icon, size: 24, color: Colors.black87),
+          Icon(icon, size: 24, color: theme.iconTheme.color),
           const SizedBox(width: 14),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(label,
-                    style: const TextStyle(
-                        fontWeight: FontWeight.bold, fontSize: 16)),
+                    style: theme.textTheme.bodyLarge
+                        ?.copyWith(fontWeight: FontWeight.bold)),
                 const SizedBox(height: 4),
-                Text(value,
-                    style: const TextStyle(fontSize: 15, color: Colors.black87)),
+                Text(value, style: theme.textTheme.bodyMedium),
               ],
             ),
           )

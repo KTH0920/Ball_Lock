@@ -30,13 +30,16 @@ class _SignUpPageState extends State<SignUpPage> {
     super.dispose();
   }
 
-  OutlineInputBorder _border({bool isFocused = false}) => OutlineInputBorder(
-    borderRadius: BorderRadius.circular(10),
-    borderSide: BorderSide(
-      color: isFocused ? const Color(0xFF6DB06C) : Colors.transparent,
-      width: 1.2,
-    ),
-  );
+  OutlineInputBorder _border(BuildContext context, {bool isFocused = false}) {
+    final theme = Theme.of(context);
+    return OutlineInputBorder(
+      borderRadius: BorderRadius.circular(10),
+      borderSide: BorderSide(
+        color: isFocused ? theme.colorScheme.primary : Colors.transparent,
+        width: 1.2,
+      ),
+    );
+  }
 
   void _showError(String msg) {
     if (!mounted) return;
@@ -65,16 +68,11 @@ class _SignUpPageState extends State<SignUpPage> {
     try {
       setState(() => _loading = true);
 
-      // 1) Auth
       final cred = await FirebaseAuth.instance
           .createUserWithEmailAndPassword(email: email, password: pw)
           .timeout(const Duration(seconds: 20));
 
-      // 2) Firestore
-      await FirebaseFirestore.instance
-          .collection('users')
-          .doc(cred.user!.uid)
-          .set({
+      await FirebaseFirestore.instance.collection('users').doc(cred.user!.uid).set({
         'uid': cred.user!.uid,
         'name': name,
         'email': email,
@@ -82,15 +80,13 @@ class _SignUpPageState extends State<SignUpPage> {
         'createdAt': FieldValue.serverTimestamp(),
       }).timeout(const Duration(seconds: 20));
 
-      // 로그인 화면으로 되돌리려면 로그아웃
       await FirebaseAuth.instance.signOut();
 
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('회원가입이 완료되었습니다. 로그인해주세요.')),
       );
-      Navigator.pop(context, true); // SignInPage로 복귀(성공 신호 true)
-
+      Navigator.pop(context, true);
     } on TimeoutException {
       _showError('네트워크가 지연되고 있어요. 잠시 후 다시 시도해주세요.');
     } on FirebaseAuthException catch (e) {
@@ -120,8 +116,10 @@ class _SignUpPageState extends State<SignUpPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: theme.colorScheme.background, // ✅ 테마 배경
       body: SafeArea(
         child: Column(
           children: [
@@ -134,12 +132,11 @@ class _SignUpPageState extends State<SignUpPage> {
                     icon: const Icon(Icons.arrow_back_ios_new_rounded),
                     onPressed: () => Navigator.maybePop(context),
                   ),
-                  const Expanded(
+                  Expanded(
                     child: Center(
                       child: Text(
                         'Sign Up',
-                        style: TextStyle(
-                          fontSize: 26,
+                        style: theme.textTheme.headlineSmall?.copyWith(
                           fontWeight: FontWeight.w600,
                           letterSpacing: 0.2,
                         ),
@@ -157,9 +154,10 @@ class _SignUpPageState extends State<SignUpPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    _filledField(controller: _name, hint: 'Name'),
+                    _filledField(context, controller: _name, hint: 'Name'),
                     const SizedBox(height: 14),
                     _filledField(
+                      context,
                       controller: _email,
                       hint: 'Email Id or Username',
                       keyboardType: TextInputType.emailAddress,
@@ -173,16 +171,18 @@ class _SignUpPageState extends State<SignUpPage> {
                       decoration: InputDecoration(
                         hintText: 'Password',
                         filled: true,
-                        fillColor: const Color(0xFFF4F4F4),
-                        contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 18),
-                        border: _border(),
-                        enabledBorder: _border(),
-                        focusedBorder: _border(isFocused: true),
+                        fillColor: theme.colorScheme.surfaceVariant, // ✅ 테마 적용
+                        contentPadding:
+                        const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+                        border: _border(context),
+                        enabledBorder: _border(context),
+                        focusedBorder: _border(context, isFocused: true),
                         suffixIcon: IconButton(
-                          icon: Icon(_obscurePw
-                              ? Icons.visibility_off_rounded
-                              : Icons.visibility_rounded),
+                          icon: Icon(
+                            _obscurePw
+                                ? Icons.visibility_off_rounded
+                                : Icons.visibility_rounded,
+                          ),
                           onPressed: () => setState(() => _obscurePw = !_obscurePw),
                         ),
                       ),
@@ -196,16 +196,18 @@ class _SignUpPageState extends State<SignUpPage> {
                       decoration: InputDecoration(
                         hintText: 'Confirm Password',
                         filled: true,
-                        fillColor: const Color(0xFFF4F4F4),
-                        contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 18),
-                        border: _border(),
-                        enabledBorder: _border(),
-                        focusedBorder: _border(isFocused: true),
+                        fillColor: theme.colorScheme.surfaceVariant,
+                        contentPadding:
+                        const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+                        border: _border(context),
+                        enabledBorder: _border(context),
+                        focusedBorder: _border(context, isFocused: true),
                         suffixIcon: IconButton(
-                          icon: Icon(_obscureCf
-                              ? Icons.visibility_off_rounded
-                              : Icons.visibility_rounded),
+                          icon: Icon(
+                            _obscureCf
+                                ? Icons.visibility_off_rounded
+                                : Icons.visibility_rounded,
+                          ),
                           onPressed: () => setState(() => _obscureCf = !_obscureCf),
                         ),
                       ),
@@ -217,13 +219,13 @@ class _SignUpPageState extends State<SignUpPage> {
                       children: [
                         Checkbox(
                           value: _marketing,
-                          activeColor: const Color(0xFF6DB06C),
+                          activeColor: theme.colorScheme.primary, // ✅ 테마 색상
                           onChanged: (v) => setState(() => _marketing = v ?? false),
                         ),
-                        const Expanded(
+                        Expanded(
                           child: Text(
                             'Yes, I want to receive discounts, loyalty offers\nand other updates.',
-                            style: TextStyle(height: 1.2),
+                            style: theme.textTheme.bodyMedium?.copyWith(height: 1.2),
                           ),
                         ),
                       ],
@@ -249,22 +251,24 @@ class _SignUpPageState extends State<SignUpPage> {
     );
   }
 
-  Widget _filledField({
-    required TextEditingController controller,
-    required String hint,
-    TextInputType? keyboardType,
-  }) {
+  Widget _filledField(
+      BuildContext context, {
+        required TextEditingController controller,
+        required String hint,
+        TextInputType? keyboardType,
+      }) {
+    final theme = Theme.of(context);
     return TextField(
       controller: controller,
       keyboardType: keyboardType,
       decoration: InputDecoration(
         hintText: hint,
         filled: true,
-        fillColor: const Color(0xFFF4F4F4),
+        fillColor: theme.colorScheme.surfaceVariant, // ✅ 테마 적용
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
-        border: _border(),
-        enabledBorder: _border(),
-        focusedBorder: _border(isFocused: true),
+        border: _border(context),
+        enabledBorder: _border(context),
+        focusedBorder: _border(context, isFocused: true),
       ),
     );
   }
@@ -279,11 +283,13 @@ class OrDivider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final grey = Colors.grey.shade400;
+    final theme = Theme.of(context);
+    final grey = theme.dividerColor;
+
     return Column(
       children: [
         const SizedBox(height: 6),
-        Text(labelTop, style: TextStyle(color: grey)),
+        Text(labelTop, style: theme.textTheme.bodySmall?.copyWith(color: grey)),
         const SizedBox(height: 10),
         Row(
           children: [
@@ -291,7 +297,10 @@ class OrDivider extends StatelessWidget {
             const SizedBox(width: 12),
             Text(
               labelBottom,
-              style: TextStyle(color: Colors.grey.shade600, letterSpacing: 0.2),
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: theme.hintColor,
+                letterSpacing: 0.2,
+              ),
             ),
             const SizedBox(width: 12),
             Expanded(child: Divider(color: grey)),
@@ -373,16 +382,20 @@ class PrimaryButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return SizedBox(
       height: 52,
       child: FilledButton(
         style: FilledButton.styleFrom(
-          backgroundColor: const Color(0xFF6DB06C),
+          backgroundColor: theme.colorScheme.primary, // ✅ 테마 적용
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
           textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
         ),
         onPressed: onPressed,
-        child: Text(label),
+        child: Text(
+          label,
+          style: TextStyle(color: theme.colorScheme.onPrimary),
+        ),
       ),
     );
   }

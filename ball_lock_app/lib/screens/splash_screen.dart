@@ -24,13 +24,15 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Scaffold(
-      backgroundColor: const Color(0xFF1D6E69), // ✅ 배경색을 로고 배경색(#1D6E69)으로 통일
+      backgroundColor: theme.colorScheme.primary, // ✅ 테마의 메인 컬러 사용
       body: Center(
         child: Image.asset(
           "assets/images/food_locker_logo.png",
-          fit: BoxFit.contain, // 비율 유지
-          width: MediaQuery.of(context).size.width * 0.9, // 화면 90% 차지
+          fit: BoxFit.contain,
+          width: MediaQuery.of(context).size.width * 0.9,
         ),
       ),
     );

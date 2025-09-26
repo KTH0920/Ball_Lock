@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:provider/provider.dart'; // ✅ Provider 추가
 import 'firebase_options.dart';
 import 'screens/splash_screen.dart';
+import 'theme/app_theme.dart';
+import 'theme/theme_provider.dart'; // ✅ ThemeProvider import
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -12,7 +15,12 @@ Future<void> main() async {
     );
   }
 
-  runApp(const MyApp());
+  runApp(
+    ChangeNotifierProvider(
+      create: (_) => ThemeProvider(),
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -20,12 +28,18 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Food Locker',
-      theme: ThemeData(primarySwatch: Colors.green),
 
-      // ✅ 무조건 스플래시에서 시작
+      // ✅ 테마 적용
+      theme: AppTheme.lightTheme,
+      darkTheme: AppTheme.darkTheme,
+      themeMode: themeProvider.themeMode,
+
+      // ✅ 스플래시부터 시작
       home: const SplashScreen(),
     );
   }

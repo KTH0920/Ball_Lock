@@ -19,11 +19,14 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context); // ✅ 테마 불러오기
+
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F5F5), // ✅ 프로필 화면과 동일한 회색 배경
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
         title: const Text("프로필 수정"),
-        backgroundColor: const Color(0xFF11AB69),
+        backgroundColor: theme.appBarTheme.backgroundColor,
+        foregroundColor: theme.appBarTheme.foregroundColor,
         elevation: 0,
       ),
       body: Column(
@@ -34,18 +37,19 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
             children: [
               Container(
                 height: 160,
-                decoration: const BoxDecoration(
-                  color: Color(0xFF11AB69),
-                  borderRadius: BorderRadius.only(
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.primary,
+                  borderRadius: const BorderRadius.only(
                     bottomLeft: Radius.circular(60),
                     bottomRight: Radius.circular(60),
                   ),
                 ),
               ),
-              const CircleAvatar(
+              CircleAvatar(
                 radius: 50,
-                backgroundColor: Colors.white,
-                child: Icon(Icons.person, size: 55, color: Colors.grey),
+                backgroundColor: theme.colorScheme.onPrimary,
+                child: Icon(Icons.person,
+                    size: 55, color: theme.iconTheme.color),
               ),
               Positioned(
                 bottom: 10,
@@ -53,8 +57,8 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                   onPressed: () {
                     // TODO: 이미지 업로드 기능
                   },
-                  icon: const Icon(Icons.add_circle,
-                      color: Colors.black54, size: 28),
+                  icon: Icon(Icons.add_circle,
+                      color: theme.iconTheme.color, size: 28),
                 ),
               ),
             ],
@@ -67,15 +71,16 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
               children: [
                 // ✅ 사용자 정보 수정 블럭
                 _buildEditCard(
+                  theme: theme,
                   title: "사용자 정보 수정",
                   children: [
-                    _buildTextField("Name", _nameController),
-                    _buildTextField("Phone no.", _phoneController,
+                    _buildTextField(theme, "Name", _nameController),
+                    _buildTextField(theme, "Phone no.", _phoneController,
                         keyboardType: TextInputType.phone),
-                    _buildTextField("E-Mail", _emailController,
+                    _buildTextField(theme, "E-Mail", _emailController,
                         keyboardType: TextInputType.emailAddress,
                         readOnly: true),
-                    _buildTextField("Payment Method", _paymentController),
+                    _buildTextField(theme, "Payment Method", _paymentController),
                   ],
                 ),
               ],
@@ -89,22 +94,24 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
               width: double.infinity,
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF11AB69),
+                  backgroundColor: theme.colorScheme.primary,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
                   padding: const EdgeInsets.symmetric(vertical: 16),
                 ),
                 onPressed: () {
-                  // TODO: Firebase/DB 저장 로직
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text("프로필이 저장되었습니다.")),
                   );
                   Navigator.pop(context);
                 },
-                child: const Text(
+                child: Text(
                   "저장하기",
-                  style: TextStyle(fontSize: 18, color: Colors.white),
+                  style: theme.textTheme.labelLarge?.copyWith(
+                    color: theme.colorScheme.onPrimary,
+                    fontSize: 18,
+                  ),
                 ),
               ),
             ),
@@ -115,7 +122,11 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
   }
 
   /// 블럭(Card) 스타일
-  Widget _buildEditCard({required String title, required List<Widget> children}) {
+  Widget _buildEditCard({
+    required ThemeData theme,
+    required String title,
+    required List<Widget> children,
+  }) {
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       elevation: 3,
@@ -126,8 +137,8 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(title,
-                style: const TextStyle(
-                    fontSize: 18, fontWeight: FontWeight.bold)),
+                style: theme.textTheme.titleMedium
+                    ?.copyWith(fontWeight: FontWeight.bold)),
             const Divider(height: 20, thickness: 1),
             ...children,
           ],
@@ -137,9 +148,13 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
   }
 
   /// 공통 텍스트필드
-  Widget _buildTextField(String label, TextEditingController controller,
-      {TextInputType keyboardType = TextInputType.text,
-        bool readOnly = false}) {
+  Widget _buildTextField(
+      ThemeData theme,
+      String label,
+      TextEditingController controller, {
+        TextInputType keyboardType = TextInputType.text,
+        bool readOnly = false,
+      }) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 20),
       child: TextField(
@@ -149,7 +164,8 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
         decoration: InputDecoration(
           labelText: label,
           filled: true,
-          fillColor: Colors.grey[200],
+          fillColor: theme.inputDecorationTheme.fillColor ??
+              theme.colorScheme.surfaceVariant,
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
             borderSide: BorderSide.none,
