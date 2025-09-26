@@ -2,8 +2,9 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-import 'category_screen.dart';   // 경로 확인
-import 'sign_in.dart';      // 경로가 다르면 'sign_in.dart'로 바꿔줘
+import 'category_screen.dart';
+import 'sign_in.dart';
+import 'profile_screen.dart'; // ✅ 새로 추가
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -141,12 +142,22 @@ class _HomeScreenState extends State<HomeScreen> {
         showUnselectedLabels: true,
         onTap: (i) async {
           if (i == 3) {
-            // ✅ 프로필 탭 → 로그인 화면으로 이동
-            await Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const SignInPage()),
-            );
-            return; // 인덱스 변경 안 함 (원하면 _currentIndex = 3 으로 유지해도 됨)
+            // ✅ 프로필 탭 눌렀을 때 로그인 여부 확인
+            final user = FirebaseAuth.instance.currentUser;
+            if (user == null) {
+              // 로그인 안 됨 → 로그인 화면
+              await Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const SignInPage()),
+              );
+            } else {
+              // 로그인 됨 → 프로필 화면
+              await Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const ProfileScreen()),
+              );
+            }
+            return; // 인덱스 변경 X
           }
           setState(() => _currentIndex = i);
         },
