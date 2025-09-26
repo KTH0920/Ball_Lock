@@ -1,10 +1,10 @@
-// lib/screens/home_screen.dart
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import 'category_screen.dart';
 import 'sign_in.dart';
-import 'profile_screen.dart'; // ✅ 새로 추가
+import 'profile_screen.dart';
+import 'favorites_page.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -14,127 +14,32 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  String? selectedCategory;   // ✅ 선택된 카테고리 상태
-  int _currentIndex = 0;      // ✅ 하단바 현재 인덱스
+  int _currentIndex = 0;
+  String? selectedCategory;
+
+  // ✅ 각 탭에서 보여줄 화면들
+  late final List<Widget> _pages;
+
+  @override
+  void initState() {
+    super.initState();
+    _pages = [
+      _buildHomePage(),
+      const FavoritesScreen(), // 관심목록 화면
+      const Center(child: Text("Cart Page")), // 장바구니 (임시)
+      const Center(child: Text("Profile Page")), // 프로필 (임시, 로그인시 교체)
+    ];
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // 상단 타이틀
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    "Food\nLocker!",
-                    style: TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  IconButton(
-                    onPressed: () {},
-                    icon: const Icon(Icons.notifications_none),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20),
-
-              // 검색창 + 필터 버튼
-              Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      decoration: InputDecoration(
-                        hintText: "야구장 검색!",
-                        prefixIcon: const Icon(Icons.search),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide.none,
-                        ),
-                        fillColor: Colors.grey[200],
-                        filled: true,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const CategoryScreen(),
-                        ),
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF11AB69),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      padding: const EdgeInsets.all(14),
-                    ),
-                    child: const Icon(Icons.tune, color: Colors.white),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 30),
-
-              // 카테고리 타이틀
-              const Text(
-                "Categories",
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 15),
-
-              // ✅ 카테고리 리스트 (토글형)
-              SizedBox(
-                height: 110,
-                child: ListView(
-                  scrollDirection: Axis.horizontal,
-                  children: [
-                    _buildCategory("Sandwich", "assets/images/sandwich.png"),
-                    _buildCategory("Pizza", "assets/images/pizza.png"),
-                    _buildCategory("Burger", "assets/images/burger.png"),
-                    _buildCategory("Drinks", "assets/images/drinks.png"),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 30),
-
-              // 추천 타이틀
-              const Text(
-                "Recommended",
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 15),
-
-              // 추천 메뉴
-              Row(
-                children: [
-                  Expanded(
-                    child: _buildFoodCard(
-                        "Sandwich", "\$15.50", "assets/images/sandwich.png"),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: _buildFoodCard(
-                        "Hamburger", "\$19.99", "assets/images/burger.png"),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
+        child: _pages[_currentIndex],
       ),
 
-      // 하단 네비게이션바
+      // ✅ 하단 네비게이션바
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         selectedItemColor: const Color(0xFF11AB69),
@@ -142,22 +47,20 @@ class _HomeScreenState extends State<HomeScreen> {
         showUnselectedLabels: true,
         onTap: (i) async {
           if (i == 3) {
-            // ✅ 프로필 탭 눌렀을 때 로그인 여부 확인
+            // 프로필 탭
             final user = FirebaseAuth.instance.currentUser;
             if (user == null) {
-              // 로그인 안 됨 → 로그인 화면
               await Navigator.push(
                 context,
                 MaterialPageRoute(builder: (_) => const SignInPage()),
               );
             } else {
-              // 로그인 됨 → 프로필 화면
               await Navigator.push(
                 context,
                 MaterialPageRoute(builder: (_) => const ProfileScreen()),
               );
             }
-            return; // 인덱스 변경 X
+            return;
           }
           setState(() => _currentIndex = i);
         },
@@ -171,7 +74,121 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // ✅ 토글형 카테고리 위젯
+  // ✅ 홈 화면 위젯
+  Widget _buildHomePage() {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // 상단 타이틀
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                "Food\nLocker!",
+                style: TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              IconButton(
+                onPressed: () {},
+                icon: const Icon(Icons.notifications_none),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+
+          // 검색창 + 필터 버튼
+          Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  decoration: InputDecoration(
+                    hintText: "야구장 검색!",
+                    prefixIcon: const Icon(Icons.search),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
+                    ),
+                    fillColor: Colors.grey[200],
+                    filled: true,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 10),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const CategoryScreen(),
+                    ),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF11AB69),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  padding: const EdgeInsets.all(14),
+                ),
+                child: const Icon(Icons.tune, color: Colors.white),
+              ),
+            ],
+          ),
+          const SizedBox(height: 30),
+
+          // 카테고리 타이틀
+          const Text(
+            "Categories",
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 15),
+
+          // 카테고리 리스트
+          SizedBox(
+            height: 110,
+            child: ListView(
+              scrollDirection: Axis.horizontal,
+              children: [
+                _buildCategory("Sandwich", "assets/images/sandwich.png"),
+                _buildCategory("Pizza", "assets/images/pizza.png"),
+                _buildCategory("Burger", "assets/images/burger.png"),
+                _buildCategory("Drinks", "assets/images/drinks.png"),
+              ],
+            ),
+          ),
+          const SizedBox(height: 30),
+
+          // 추천 타이틀
+          const Text(
+            "Recommended",
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 15),
+
+          // 추천 메뉴
+          Row(
+            children: [
+              Expanded(
+                child: _buildFoodCard(
+                    "Sandwich", "\$15.50", "assets/images/sandwich.png"),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _buildFoodCard(
+                    "Hamburger", "\$19.99", "assets/images/burger.png"),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ✅ 카테고리 카드
   Widget _buildCategory(String title, String imagePath) {
     final bool isSelected = selectedCategory == title;
     return GestureDetector(
@@ -209,7 +226,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // 음식 카드 위젯
+  // ✅ 음식 카드
   Widget _buildFoodCard(String title, String price, String imagePath) {
     return Container(
       padding: const EdgeInsets.all(12),
@@ -230,11 +247,18 @@ class _HomeScreenState extends State<HomeScreen> {
           ClipRRect(
             borderRadius: BorderRadius.circular(12),
             child: Image.asset(
-                imagePath, height: 100, width: double.infinity, fit: BoxFit.cover),
+              imagePath,
+              height: 100,
+              width: double.infinity,
+              fit: BoxFit.cover,
+            ),
           ),
           const SizedBox(height: 10),
-          Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-          Text("Starting From $price", style: const TextStyle(color: Colors.green)),
+          Text(title,
+              style: const TextStyle(
+                  fontWeight: FontWeight.bold, fontSize: 16)),
+          Text("Starting From $price",
+              style: const TextStyle(color: Colors.green)),
         ],
       ),
     );
