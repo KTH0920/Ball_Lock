@@ -2,8 +2,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-import '../main.dart';   // ← 로그인 성공 후 이동할 화면
-import 'sign_up.dart';          // ← 회원가입 화면
+import 'sign_up.dart'; // 회원가입 화면
+import 'home_screen.dart'; // 로그인 성공 후 이동할 메인 화면
 
 class SignInPage extends StatefulWidget {
   const SignInPage({super.key});
@@ -42,22 +42,19 @@ class _SignInPageState extends State<SignInPage> {
     try {
       setState(() => _loading = true);
 
-      // 이메일/비밀번호 로그인
       await FirebaseAuth.instance
           .signInWithEmailAndPassword(email: email, password: pw)
           .timeout(const Duration(seconds: 20));
 
       if (!mounted) return;
 
-      // 로그인 성공 → 메인(HomeScreen)으로 교체 이동
       Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (_) => const MyApp()),
+        MaterialPageRoute(builder: (_) => const HomeScreen()),
             (route) => false,
       );
     } on TimeoutException {
       _showSnack('네트워크가 지연되고 있어요. 잠시 후 다시 시도해주세요.');
     } on FirebaseAuthException catch (e) {
-      // 대표적인 에러 코드 매핑
       String msg;
       switch (e.code) {
         case 'user-not-found':
@@ -85,11 +82,12 @@ class _SignInPageState extends State<SignInPage> {
     }
   }
 
-  OutlineInputBorder _inputBorder({bool isFocused = false}) {
+  OutlineInputBorder _inputBorder(BuildContext context, {bool isFocused = false}) {
+    final theme = Theme.of(context);
     return OutlineInputBorder(
       borderRadius: BorderRadius.circular(10),
       borderSide: BorderSide(
-        color: isFocused ? const Color(0xFF6DB06C) : Colors.transparent,
+        color: isFocused ? theme.colorScheme.primary : Colors.transparent,
         width: 1.2,
       ),
     );
@@ -98,8 +96,9 @@ class _SignInPageState extends State<SignInPage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: theme.colorScheme.background, // ✅ 배경색 테마 적용
       body: SafeArea(
         child: Column(
           children: [
@@ -112,12 +111,11 @@ class _SignInPageState extends State<SignInPage> {
                     icon: const Icon(Icons.arrow_back_ios_new_rounded),
                     onPressed: () => Navigator.maybePop(context),
                   ),
-                  const Expanded(
+                  Expanded(
                     child: Center(
                       child: Text(
                         'Sign In',
-                        style: TextStyle(
-                          fontSize: 26,
+                        style: theme.textTheme.headlineSmall?.copyWith(
                           fontWeight: FontWeight.w600,
                           letterSpacing: 0.2,
                         ),
@@ -148,12 +146,12 @@ class _SignInPageState extends State<SignInPage> {
                       decoration: InputDecoration(
                         hintText: 'Password',
                         filled: true,
-                        fillColor: const Color(0xFFF4F4F4),
+                        fillColor: theme.colorScheme.surfaceVariant, // ✅ 테마 적용
                         contentPadding: const EdgeInsets.symmetric(
                             horizontal: 16, vertical: 18),
-                        border: _inputBorder(),
-                        enabledBorder: _inputBorder(),
-                        focusedBorder: _inputBorder(isFocused: true),
+                        border: _inputBorder(context),
+                        enabledBorder: _inputBorder(context),
+                        focusedBorder: _inputBorder(context, isFocused: true),
                         suffixIcon: IconButton(
                           icon: Icon(
                             _obscure
@@ -170,7 +168,7 @@ class _SignInPageState extends State<SignInPage> {
                       child: TextButton(
                         style: TextButton.styleFrom(
                           padding: EdgeInsets.zero,
-                          foregroundColor: Colors.grey.shade600,
+                          foregroundColor: theme.colorScheme.secondary,
                         ),
                         onPressed: () {
                           // TODO: 비밀번호 재설정 화면으로 이동
@@ -192,7 +190,6 @@ class _SignInPageState extends State<SignInPage> {
                     ),
 
                     const SizedBox(height: 16),
-                    // 회원가입 이동
                     Center(
                       child: TextButton(
                         onPressed: () async {
@@ -207,7 +204,7 @@ class _SignInPageState extends State<SignInPage> {
                         child: Text(
                           'Need An Account?',
                           style: theme.textTheme.bodyMedium?.copyWith(
-                            color: Colors.grey.shade700,
+                            color: theme.colorScheme.secondary,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -237,28 +234,33 @@ class _LabeledField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return TextField(
       controller: controller,
       keyboardType: keyboardType,
       decoration: InputDecoration(
         hintText: hint,
         filled: true,
-        fillColor: const Color(0xFFF4F4F4),
+        fillColor: theme.colorScheme.surfaceVariant, // ✅ 입력 배경 테마 적용
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
-        border: _border(),
-        enabledBorder: _border(),
-        focusedBorder: _border(isFocused: true),
+        border: _border(context),
+        enabledBorder: _border(context),
+        focusedBorder: _border(context, isFocused: true),
       ),
     );
   }
 
-  OutlineInputBorder _border({bool isFocused = false}) => OutlineInputBorder(
-    borderRadius: BorderRadius.circular(10),
-    borderSide: BorderSide(
-      color: isFocused ? const Color(0xFF6DB06C) : Colors.transparent,
-      width: 1.2,
-    ),
-  );
+  OutlineInputBorder _border(BuildContext context, {bool isFocused = false}) {
+    final theme = Theme.of(context);
+    return OutlineInputBorder(
+      borderRadius: BorderRadius.circular(10),
+      borderSide: BorderSide(
+        color: isFocused ? theme.colorScheme.primary : Colors.transparent,
+        width: 1.2,
+      ),
+    );
+  }
 }
 
 class _OrDivider extends StatelessWidget {
@@ -268,11 +270,13 @@ class _OrDivider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final grey = Colors.grey.shade400;
+    final theme = Theme.of(context);
+    final grey = theme.dividerColor;
+
     return Column(
       children: [
         const SizedBox(height: 6),
-        Text(labelTop, style: TextStyle(color: grey)),
+        Text(labelTop, style: theme.textTheme.bodySmall?.copyWith(color: grey)),
         const SizedBox(height: 10),
         Row(
           children: [
@@ -280,7 +284,10 @@ class _OrDivider extends StatelessWidget {
             const SizedBox(width: 12),
             Text(
               labelBottom,
-              style: TextStyle(color: Colors.grey.shade600, letterSpacing: 0.2),
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: theme.hintColor,
+                letterSpacing: 0.2,
+              ),
             ),
             const SizedBox(width: 12),
             Expanded(child: Divider(color: grey)),
@@ -324,7 +331,7 @@ class _CircleBrand extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkResponse(
-      onTap: () {}, // TODO: 소셜 로그인 연결 시 구현
+      onTap: () {}, // TODO: 소셜 로그인 연결
       child: Container(
         width: 48,
         height: 48,
@@ -361,16 +368,21 @@ class _PrimaryButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return SizedBox(
       height: 52,
       child: FilledButton(
         style: FilledButton.styleFrom(
-          backgroundColor: const Color(0xFF6DB06C),
+          backgroundColor: theme.colorScheme.primary, // ✅ 테마 적용
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
           textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
         ),
         onPressed: onPressed,
-        child: Text(label),
+        child: Text(
+          label,
+          style: TextStyle(color: theme.colorScheme.onPrimary),
+        ),
       ),
     );
   }

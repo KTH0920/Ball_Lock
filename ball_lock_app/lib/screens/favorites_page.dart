@@ -5,90 +5,101 @@ class FavoritesScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context); // ✅ 테마 가져오기
+
     return Padding(
       padding: const EdgeInsets.all(16.0),
-      child: Container(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          border: Border.all(color: Colors.black26),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // 리스트 아이템
-            Expanded(
-              child: ListView.separated(
-                itemCount: 5,
-                separatorBuilder: (_, __) => const Divider(),
-                itemBuilder: (context, index) {
-                  return ListTile(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // 리스트 아이템들 박스
+          Expanded(
+            child: ListView.separated(
+              itemCount: 5,
+              separatorBuilder: (_, __) =>
+                  Divider(color: theme.dividerColor, thickness: 1),
+              itemBuilder: (context, index) {
+                return Card(
+                  elevation: 3, // ✅ 그림자 추가
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: ListTile(
                     leading: Container(
                       width: 60,
                       height: 70,
                       decoration: BoxDecoration(
-                        color: Colors.grey[300],
+                        color: theme.colorScheme.surfaceVariant, // ✅ 이미지 자리
                         borderRadius: BorderRadius.circular(8),
                       ),
                     ),
-                    title: const Text("1x item"),
-                    contentPadding: EdgeInsets.zero,
-                  );
-                },
-              ),
+                    title: Text(
+                      "1x item",
+                      style: theme.textTheme.bodyMedium,
+                    ),
+                    contentPadding: const EdgeInsets.all(12),
+                  ),
+                );
+              },
             ),
+          ),
 
-            const SizedBox(height: 16),
+          const SizedBox(height: 16),
 
-            // Notes 입력창
-            const Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                "Notes",
-                style: TextStyle(fontWeight: FontWeight.w500),
-              ),
+          // Notes 입력창
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Text(
+              "메모",
+              style: theme.textTheme.titleMedium
+                  ?.copyWith(fontWeight: FontWeight.w600),
             ),
-            const SizedBox(height: 6),
-            TextField(
-              decoration: InputDecoration(
-                hintText: "Add order notes",
-                contentPadding: EdgeInsets.symmetric(horizontal: 16),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(30),
+          ),
+          const SizedBox(height: 6),
+          TextField(
+            decoration: InputDecoration(
+              hintText: "주문 관련 메모를 입력하세요",
+              hintStyle: theme.textTheme.bodyMedium?.copyWith(
+                color: theme.hintColor,
+              ),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(color: theme.dividerColor),
+              ),
+              filled: true,
+              fillColor: theme.cardColor, // ✅ 배경 흰색 박스
+            ),
+          ),
+
+          const SizedBox(height: 20),
+
+          // Filter 버튼 (가운데 정렬)
+          Align(
+            alignment: Alignment.center,
+            child: SizedBox(
+              width: 140,
+              child: ElevatedButton(
+                onPressed: () {},
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: theme.colorScheme.primary,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                ),
+                child: Text(
+                  "필터 적용",
+                  style: theme.textTheme.labelLarge?.copyWith(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: theme.colorScheme.onPrimary,
+                  ),
                 ),
               ),
             ),
-
-            const SizedBox(height: 20),
-
-            // Filter 버튼 (가운데 정렬)
-            Align(
-              alignment: Alignment.center,
-              child: SizedBox(
-                width: 120,
-                child: ElevatedButton(
-                  onPressed: () {},
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF11AB69),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    padding: EdgeInsets.symmetric(vertical: 12),
-                  ),
-                  child: const Text(
-                    "Filter",
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
