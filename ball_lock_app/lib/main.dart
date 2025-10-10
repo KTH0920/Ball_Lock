@@ -10,15 +10,18 @@ import 'theme/app_theme.dart';
 import 'theme/theme_provider.dart';
 
 Future<void> main() async {
-  // ✅ Flutter 엔진 초기화
   WidgetsFlutterBinding.ensureInitialized();
 
-  // ✅ Firebase 무조건 정확히 한 번만 초기화
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  // ✅ Firebase 초기화 (딱 한 번만 실행)
+  try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+    debugPrint('✅ Firebase initialized successfully');
+  } catch (e) {
+    debugPrint('❌ Firebase initialization failed: $e');
+  }
 
-  // ✅ 앱 실행 (Firebase 초기화 이후)
   runApp(
     ChangeNotifierProvider(
       create: (_) => ThemeProvider(),
@@ -37,31 +40,44 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Food Locker',
-
-      // ✅ 다크모드 테마 적용
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: themeProvider.themeMode,
 
-      // ✅ FirebaseAuth 상태 확인 후 화면 분기
+      // ✅ 앱이 정상적으로 렌더링 중인지 FutureBuilder로 감싸기
       home: FutureBuilder(
-        // Firebase 초기화 완료 후 Auth 상태 확인
         future: Firebase.initializeApp(
           options: DefaultFirebaseOptions.currentPlatform,
         ),
         builder: (context, snapshot) {
+          // 초기화 진행 중
           if (snapshot.connectionState == ConnectionState.waiting) {
-            // 초기화 중 로딩 스피너
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (snapshot.hasError) {
             return const Scaffold(
-              body: Center(child: Text('Firebase 초기화 실패')),
+              body: Center(
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                ),
+              ),
             );
           }
 
-          // ✅ 로그인 여부에 따라 화면 분기
-          return FirebaseAuth.instance.currentUser == null
+          // 초기화 실패 시
+          if (snapshot.hasError) {
+            return Scaffold(
+              body: Center(
+                child: Text(
+                  'Firebase 초기화 실패: ${snapshot.error}',
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            );
+          }
+
+          // ✅ Firebase 초기화 완료 → 로그인 여부에 따라 분기
+          final user = FirebaseAuth.instance.currentUser;
+          debugPrint('👤 FirebaseAuth currentUser: $user');
+
+          return user == null
               ? const SplashScreen()
               : const HomeScreen();
         },
