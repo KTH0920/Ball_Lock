@@ -13,6 +13,12 @@ class _CategoryScreenState extends State<CategoryScreen> {
   String? selectedCategory;
   String? selectedBrand;
 
+  // ✅ 브랜드별 이미지 매핑
+  final Map<String, String> brandImages = {
+    'BBQ': 'assets/images/bbq1.png',
+    'BHC': 'assets/images/bhc1.png',
+  };
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -71,6 +77,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
             // ⭐ Category
             if (selectedStadium != null) ...[
               const Text("Category", style: TextStyle(fontWeight: FontWeight.bold)),
+              const SizedBox(height: 10),
               StreamBuilder<QuerySnapshot>(
                 stream: FirebaseFirestore.instance
                     .collection('stadiums')
@@ -79,7 +86,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
                     .snapshots(),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const CircularProgressIndicator();
+                    return const Center(child: CircularProgressIndicator());
                   }
                   if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
                     return const Text("카테고리 없음");
@@ -121,6 +128,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
             // ⭐ Brand
             if (selectedCategory != null) ...[
               const Text("Brand", style: TextStyle(fontWeight: FontWeight.bold)),
+              const SizedBox(height: 10),
               StreamBuilder<QuerySnapshot>(
                 stream: FirebaseFirestore.instance
                     .collection('stadiums')
@@ -131,7 +139,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
                     .snapshots(),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const CircularProgressIndicator();
+                    return const Center(child: CircularProgressIndicator());
                   }
                   if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
                     return const Text("브랜드 없음");
@@ -152,11 +160,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
                         ),
                         onSelected: (_) {
                           setState(() {
-                            if (isSelected) {
-                              selectedBrand = null;
-                            } else {
-                              selectedBrand = name;
-                            }
+                            selectedBrand = isSelected ? null : name;
                           });
                         },
                       );
@@ -168,9 +172,10 @@ class _CategoryScreenState extends State<CategoryScreen> {
 
             const SizedBox(height: 20),
 
-            // ⭐ Items
+            // ⭐ Menu Items + 이미지 카드 디자인
             if (selectedBrand != null) ...[
               const Text("Menu Items", style: TextStyle(fontWeight: FontWeight.bold)),
+              const SizedBox(height: 10),
               Expanded(
                 child: StreamBuilder<QuerySnapshot>(
                   stream: FirebaseFirestore.instance
@@ -191,14 +196,64 @@ class _CategoryScreenState extends State<CategoryScreen> {
                     }
 
                     final items = snapshot.data!.docs;
-                    return ListView.separated(
+
+                    return GridView.builder(
+                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        mainAxisSpacing: 16,
+                        crossAxisSpacing: 16,
+                        childAspectRatio: 0.8,
+                      ),
                       itemCount: items.length,
-                      separatorBuilder: (_, __) => const Divider(),
                       itemBuilder: (context, index) {
                         final data = items[index].data() as Map<String, dynamic>;
-                        return ListTile(
-                          title: Text(data['name'] ?? '이름 없음'),
-                          subtitle: Text("${data['price'] ?? ''} 원"),
+                        final name = data['name'] ?? '이름 없음';
+                        final price = data['price'] ?? '';
+                        final imagePath = brandImages[selectedBrand] ?? '';
+
+                        return Card(
+                          elevation: 3,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              ClipRRect(
+                                borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                                child: Image.asset(
+                                  imagePath,
+                                  height: 120,
+                                  width: double.infinity,
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                                child: Column(
+                                  children: [
+                                    Text(
+                                      name,
+                                      style: const TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      "₩$price",
+                                      style: const TextStyle(
+                                        color: Colors.grey,
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
                         );
                       },
                     );
@@ -212,11 +267,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
             // ⭐ Filter 버튼
             ElevatedButton(
               onPressed: () {
-                debugPrint(
-                  "Stadium: $selectedStadium, "
-                      "Category: $selectedCategory, "
-                      "Brand: $selectedBrand",
-                );
+                debugPrint("Stadium: $selectedStadium, Category: $selectedCategory, Brand: $selectedBrand");
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF11AB69),
