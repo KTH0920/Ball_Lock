@@ -174,6 +174,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                 final userData = userDoc.data();
 
                 final order = {
+                  "uid": user!.uid,
                   "customerName": userData?['name'] ?? "이름 없음",
                   "phone": userData?['phone'] ?? "",
                   "seat": seat,

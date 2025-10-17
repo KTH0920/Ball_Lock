@@ -4,7 +4,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'category_screen.dart';
 import 'sign_in.dart';
 import 'profile_screen.dart';
-import 'favorites_page.dart';
+import 'delivery_status_page.dart';
+import 'delivery_status_screen.dart';
 import 'cart_screen.dart';
 import 'notification_screen.dart';
 import 'my_page_screen.dart';
@@ -26,7 +27,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     final pages = [
       _buildHomePage(),
-      const FavoritesScreen(),
+      const DeliveryStatusPage(),
       const CartScreen(),
       const MyPageScreen(),
     ];
@@ -54,7 +55,7 @@ class _HomeScreenState extends State<HomeScreen> {
         },
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: "홈"),
-          BottomNavigationBarItem(icon: Icon(Icons.favorite_border), label: "관심목록"),
+          BottomNavigationBarItem(icon: Icon(Icons.delivery_dining), label: "배달현황"),
           BottomNavigationBarItem(icon: Icon(Icons.shopping_cart_outlined), label: "장바구니"),
           BottomNavigationBarItem(icon: Icon(Icons.person_outline), label: "마이페이지"),
         ],

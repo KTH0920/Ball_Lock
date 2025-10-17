@@ -49,7 +49,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
                     return ChoiceChip(
                       label: Text(name),
                       selected: isSelected,
-                      selectedColor: const Color(0xFF11AB69),
+                      selectedColor: const Color(0xFF1E6F6A),
                       labelStyle: TextStyle(
                         color: isSelected ? Colors.white : Colors.black,
                       ),
@@ -101,7 +101,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
                       return ChoiceChip(
                         label: Text(name),
                         selected: isSelected,
-                        selectedColor: const Color(0xFF11AB69),
+                        selectedColor: const Color(0xFF1E6F6A),
                         labelStyle: TextStyle(
                           color: isSelected ? Colors.white : Colors.black,
                         ),
@@ -154,7 +154,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
                       return ChoiceChip(
                         label: Text(name),
                         selected: isSelected,
-                        selectedColor: const Color(0xFF11AB69),
+                        selectedColor: const Color(0xFF1E6F6A),
                         labelStyle: TextStyle(
                           color: isSelected ? Colors.white : Colors.black,
                         ),
@@ -270,7 +270,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
                 debugPrint("Stadium: $selectedStadium, Category: $selectedCategory, Brand: $selectedBrand");
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF11AB69),
+                backgroundColor: const Color(0xFF1E6F6A),
                 padding: const EdgeInsets.symmetric(vertical: 16),
               ),
               child: const Text("Filter", style: TextStyle(color: Colors.white)),

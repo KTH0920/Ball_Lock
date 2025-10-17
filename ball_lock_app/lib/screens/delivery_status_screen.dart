@@ -12,7 +12,7 @@ class DeliveryStatusScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text("배달 현황"),
         centerTitle: true,
-        backgroundColor: Colors.green.shade700,
+        backgroundColor: Color(0xFF1E6F6A),
         foregroundColor: Colors.white,
       ),
       body: StreamBuilder<DocumentSnapshot>(
@@ -41,7 +41,7 @@ class DeliveryStatusScreen extends StatelessWidget {
                     child: Column(
                       children: [
                         const Icon(Icons.delivery_dining,
-                            size: 90, color: Colors.green),
+                            size: 90, color: Color(0xFF1E6F6A),),
                         const SizedBox(height: 16),
                         Text(
                           _statusMessage(status),
@@ -91,7 +91,7 @@ class DeliveryStatusScreen extends StatelessWidget {
                     width: double.infinity,
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.green.shade700,
+                        backgroundColor: Color(0xFF1E6F6A),
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
@@ -179,19 +179,19 @@ class DeliveryStatusScreen extends StatelessWidget {
   static Widget _statusTile(
       IconData icon, String title, String subtitle, bool active) {
     return ListTile(
-      leading: Icon(icon, color: active ? Colors.green : Colors.grey),
+      leading: Icon(icon, color: active ? Color(0xFF1E6F6A) : Colors.grey),
       title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
       subtitle: Text(subtitle),
       trailing: Text(
         active ? "진행중" : "대기",
         style: TextStyle(
-          color: active ? Colors.green : Colors.grey,
+          color: active ? Color(0xFF1E6F6A) : Colors.grey,
           fontWeight: FontWeight.bold,
         ),
       ),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10),
-        side: BorderSide(color: active ? Colors.green : Colors.grey.shade400),
+        side: BorderSide(color: active ? Color(0xFF1E6F6A) : Colors.grey.shade400),
       ),
     );
   }
