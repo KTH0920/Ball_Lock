@@ -1,26 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:provider/provider.dart'; // ✅ Provider 추가
-
+import 'package:provider/provider.dart';
 import 'firebase_options.dart';
 import 'screens/splash_screen.dart';
-import 'screens/home_screen.dart';
 import 'theme/app_theme.dart';
-import 'theme/theme_provider.dart'; // ✅ ThemeProvider import
+import 'theme/theme_provider.dart';
 
 Future<void> main() async {
+  // Flutter 엔진 초기화
   WidgetsFlutterBinding.ensureInitialized();
 
+  // Firebase 초기화 (중복 방지)
   if (Firebase.apps.isEmpty) {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
   }
 
+  // 앱 실행
   runApp(
     ChangeNotifierProvider(
-      create: (_) => ThemeProvider(),  // ✅ ThemeProvider 전역 등록
+      create: (_) => ThemeProvider(),
       child: const MyApp(),
     ),
   );
@@ -37,14 +37,13 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Food Locker',
 
-      // ✅ AppTheme 적용
+      // ✅ 다크모드 / 라이트모드 테마 적용
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
-      themeMode: themeProvider.themeMode, // Provider로 상태 관리
+      themeMode: themeProvider.themeMode,
 
-      home: FirebaseAuth.instance.currentUser == null
-          ? const SplashScreen()
-          : const HomeScreen(),
+      // ✅ 항상 SplashScreen부터 시작
+      home: const SplashScreen(),
     );
   }
 }
